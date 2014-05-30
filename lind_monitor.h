@@ -22,7 +22,7 @@
 
 #ifdef __x86_64__
 
-#define CONFIG_FILE "/home/gholami/workspace/lind_monitor/configs/monitor.cfg"
+#define CONFIG_FILE "/home/gholami/workspace/monitor/configs/monitor.cfg"
 
 #define SIZE(a) (int)(sizeof(a)/sizeof(a[0]))
 

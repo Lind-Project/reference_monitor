@@ -47,7 +47,9 @@ void init_ptrace(int argc, char** argv) {
 
 		/* the binary or command to be executed */
 		int ret_stat = execlp(argv[1], argv[2], NULL);
-		exit(ret_stat);
+		if(ret_stat<0) {
+			perror("execlp: ");
+		}
 	}
 }
 
@@ -59,12 +61,13 @@ void intercept_calls() {
 	char * path;
 	char * path1;
 	char *var;
-	struct syscall_args regs;
+	struct syscall_args regs, regs_orig;
 
 	/* wait for the child to stop */
 	wait(&status);
 
-	ptrace(PTRACE_SETOPTIONS, tracee, 0, PTRACE_O_TRACESYSGOOD);
+	ptrace(PTRACE_SETOPTIONS, tracee, 0, PTRACE_O_TRACESYSGOOD|PTRACE_O_TRACEEXIT);
+
 
 	while (1) {
 
@@ -83,16 +86,36 @@ void intercept_calls() {
 			exit(0);
 		}
 
-		if (WSTOPSIG(status) == (SIGTRAP | 0x80)) {
+		if((WSTOPSIG(status) == SIGTRAP) && (status&(PTRACE_EVENT_EXIT<<8))) {
+			get_args(&regs);
+			if (regs.syscall != __NR_execve)
+			printf("%s(%d)\n", syscall_names[regs.syscall], regs.arg1);
+
+		}
+
+		if (WSTOPSIG(status) == (SIGTRAP | 0x80 )) {
 
 			if (entering == 1) {
 				entering = 0;
+				get_args(&regs);
+				syscall_num = regs.syscall;
+
+				regs_orig = regs;
+
+				switch(syscall_num){
+				case __NR_close:
+					regs.arg1 = get_mapping(regs.arg1);
+					set_args(&regs);
+					break;
+				default:
+					break;
+				}
 
 			} else {
 
 				/* get the tracee registers */
 				get_args(&regs);
-				syscall_num = regs.syscall;
+				entering = 1;
 
 				if (monitor_actions[syscall_num] == DENY_LIND) {
 					fprintf(stderr, "Deny call by Lind: %s %ld\n",
@@ -115,6 +138,11 @@ void intercept_calls() {
 						fprintf(stderr, "mmap()= 0x%jx \n", regs.retval);
 						break;
 
+					case __NR_brk:
+						fprintf(stderr, "brk()= 0x%jx \n", regs.retval);
+						break;
+
+
 					default:
 						fprintf(stderr, "%s()= %ld \n",
 								syscall_names[syscall_num], regs.retval);
@@ -122,6 +150,10 @@ void intercept_calls() {
 					} /* switch*/
 
 				} else if (monitor_actions[syscall_num] == ALLOW_LIND) {
+
+					int lind_fd;
+
+					struct lind_statfs stfs;
 
 					switch (syscall_num) {
 
@@ -140,10 +172,12 @@ void intercept_calls() {
 						break;
 
 					case __NR_open:
+						if (regs_orig.retval>=0) {
 						path = get_path(regs.arg1);
-						int lind_fd = lind_open(path, regs.arg2, regs.arg3);
+						lind_fd = lind_open(path, regs.arg2, regs.arg3);
 						add_mapping(regs.retval, lind_fd);
 						regs.retval = lind_fd;
+						}
 						fprintf(stderr, "open(%s)=%ld\n", path, regs.retval);
 						break;
 
@@ -154,8 +188,8 @@ void intercept_calls() {
 						break;
 
 					case __NR_close:
-						lind_fd = get_mapping(regs.arg1);
-						regs.retval = lind_close(lind_fd);
+						//lind_fd = get_mapping(regs.arg1);
+						regs.retval = lind_close(regs.arg1);
 						fprintf(stderr, "close(%d)=%d \n", regs.arg1,
 								regs.retval);
 						break;
@@ -169,14 +203,22 @@ void intercept_calls() {
 
 					case __NR_statfs:
 						path = get_path(regs.arg1);
-						struct lind_statfs st;
-						regs.retval = lind_statfs(path, &st);
-						set_mem(regs.arg2, &st, sizeof(st));
+						regs.retval = lind_statfs(path, &stfs);
+						set_mem(regs.arg2, &stfs, sizeof(stfs));
 
 						fprintf(stderr, "statfs(%s)=%d \n", path, regs.retval);
 
 						break;
 
+					case __NR_stat:
+						path = get_path(regs.arg1);
+						struct lind_stat st;
+						regs.retval = lind_stat(path, &st);
+						set_mem(regs.arg2, &st, sizeof(st));
+
+						fprintf(stderr, "stat(%s)=%d \n", path, regs.retval);
+
+						break;
 					case __NR_fstat:
 						regs.retval = lind_fstat(regs.arg1, &st);
 						set_mem(regs.arg2, &st, sizeof(st));
@@ -185,8 +227,8 @@ void intercept_calls() {
 						break;
 
 					case __NR_fstatfs:
-						regs.retval = lind_fstatfs(regs.arg1, &st);
-						set_mem(regs.arg2, &st, sizeof(st));
+						regs.retval = lind_fstatfs(regs.arg1, &stfs);
+						set_mem(regs.arg2, &stfs, sizeof(stfs));
 						fprintf(stderr, "fstatfs(%d)=%d \n", regs.arg1,
 								regs.retval);
 						break;
@@ -194,7 +236,7 @@ void intercept_calls() {
 					case __NR_write:
 						regs.retval = lind_write(regs.arg1,
 								get_mem(regs.arg2, regs.arg3), regs.arg3);
-						fprintf(stderr, "write(%ld, 0x%lx[\"%s\"], %ld) = %ld",
+						fprintf(stderr, "write(%ld, 0x%lx[\"%s\"], %ld) = %ld \n",
 								regs.arg1, regs.arg2,
 								get_mem(regs.arg2, regs.arg3), regs.arg3,
 								regs.retval);
@@ -313,7 +355,7 @@ void intercept_calls() {
 								get_mem(regs.arg2, regs.arg3), regs.arg3,
 								regs.arg4);
 						fprintf(stderr,
-								"pread64(%ld, 0x%lx[\"%s\"], %ld, %ld) = %ld",
+								"pread64(%ld, 0x%lx[\"%s\"], %ld, %ld) = %ld \n",
 								regs.arg1, regs.arg2, var, regs.arg3, regs.arg4,
 								regs.retval);
 						break;
@@ -502,7 +544,6 @@ void intercept_calls() {
 					} /* switch*/
 					set_args(&regs);
 				}
-				entering = 1;
 			} /* entering */
 		} /* WSTOPSIG*/
 	}/* while */
@@ -510,7 +551,7 @@ void intercept_calls() {
 
 /* get the path of files required by a syscall through the defined address */
 char *get_path(long addr) {
-	char path[PATH_MAX];
+	static char path[PATH_MAX];
 	long ret;
 	char ch;
 	int i;
