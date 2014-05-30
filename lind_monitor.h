@@ -2,7 +2,7 @@
  * monitor.h
  *
  *  Created on: April 17, 2014
- *      Author:  Ali Gholami
+ *      Author:  Ali Gholami, Shengqian Ji
  */
 
 #include <unistd.h>

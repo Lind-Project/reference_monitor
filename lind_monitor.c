@@ -2,7 +2,7 @@
  * monitor.c
  *
  *  Created on: April 17, 2014
- *      Author:  Ali Gholami
+ *      Author:  Ali Gholami, Shengqian Ji
  */
 
 #include "lind_monitor.h"
@@ -47,7 +47,7 @@ void init_ptrace(int argc, char** argv) {
 
 		/* the binary or command to be executed */
 		int ret_stat = execlp(argv[1], argv[2], NULL);
-		if(ret_stat<0) {
+		if (ret_stat < 0) {
 			perror("execlp: ");
 		}
 	}
@@ -66,8 +66,8 @@ void intercept_calls() {
 	/* wait for the child to stop */
 	wait(&status);
 
-	ptrace(PTRACE_SETOPTIONS, tracee, 0, PTRACE_O_TRACESYSGOOD|PTRACE_O_TRACEEXIT);
-
+	ptrace(PTRACE_SETOPTIONS, tracee, 0,
+			PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEEXIT);
 
 	while (1) {
 
@@ -86,14 +86,15 @@ void intercept_calls() {
 			exit(0);
 		}
 
-		if((WSTOPSIG(status) == SIGTRAP) && (status&(PTRACE_EVENT_EXIT<<8))) {
+		if ((WSTOPSIG(status) == SIGTRAP)
+				&& (status & (PTRACE_EVENT_EXIT << 8))) {
 			get_args(&regs);
 			if (regs.syscall != __NR_execve)
-			printf("%s(%d)\n", syscall_names[regs.syscall], regs.arg1);
+				printf("%s(%d)\n", syscall_names[regs.syscall], regs.arg1);
 
 		}
 
-		if (WSTOPSIG(status) == (SIGTRAP | 0x80 )) {
+		else if (WSTOPSIG(status) == (SIGTRAP | 0x80)) {
 
 			if (entering == 1) {
 				entering = 0;
@@ -102,10 +103,20 @@ void intercept_calls() {
 
 				regs_orig = regs;
 
-				switch(syscall_num){
+				switch (syscall_num) {
 				case __NR_close:
+					if ((int32_t) regs.arg1 >= 0) {
+			;
 					regs.arg1 = get_mapping(regs.arg1);
 					set_args(&regs);
+					}
+					break;
+				case __NR_mmap:
+					if (((int32_t) regs.arg5) >= 0) {
+
+						regs.arg5 = get_mapping(regs.arg5);
+						set_args(&regs);
+					}
 					break;
 				default:
 					break;
@@ -130,8 +141,8 @@ void intercept_calls() {
 
 					/* if pwritev is allowed by OS */
 					case __NR_pwritev:
-						regs.arg1 = get_mapping(regs.arg1);
-						set_args(&regs);
+						//regs.arg1 = get_mapping(regs.arg1);
+						//set_args(&regs);
 						break;
 
 					case __NR_mmap:
@@ -141,7 +152,6 @@ void intercept_calls() {
 					case __NR_brk:
 						fprintf(stderr, "brk()= 0x%jx \n", regs.retval);
 						break;
-
 
 					default:
 						fprintf(stderr, "%s()= %ld \n",
@@ -172,11 +182,11 @@ void intercept_calls() {
 						break;
 
 					case __NR_open:
-						if (regs_orig.retval>=0) {
-						path = get_path(regs.arg1);
-						lind_fd = lind_open(path, regs.arg2, regs.arg3);
-						add_mapping(regs.retval, lind_fd);
-						regs.retval = lind_fd;
+						if ((int32_t) regs.retval >= 0) {
+							path = get_path(regs.arg1);
+							lind_fd = lind_open(path, regs.arg2, regs.arg3);
+							add_mapping(regs.retval, lind_fd);
+							regs.retval = lind_fd;
 						}
 						fprintf(stderr, "open(%s)=%ld\n", path, regs.retval);
 						break;
@@ -189,8 +199,8 @@ void intercept_calls() {
 
 					case __NR_close:
 						//lind_fd = get_mapping(regs.arg1);
-						regs.retval = lind_close(regs.arg1);
-						fprintf(stderr, "close(%d)=%d \n", regs.arg1,
+						regs.retval = lind_close(regs_orig.arg1);
+						fprintf(stderr, "close(%d)=%d \n", regs_orig.arg1,
 								regs.retval);
 						break;
 
@@ -236,7 +246,8 @@ void intercept_calls() {
 					case __NR_write:
 						regs.retval = lind_write(regs.arg1,
 								get_mem(regs.arg2, regs.arg3), regs.arg3);
-						fprintf(stderr, "write(%ld, 0x%lx[\"%s\"], %ld) = %ld \n",
+						fprintf(stderr,
+								"write(%ld, 0x%lx[\"%s\"], %ld) = %ld \n",
 								regs.arg1, regs.arg2,
 								get_mem(regs.arg2, regs.arg3), regs.arg3,
 								regs.retval);
@@ -361,7 +372,7 @@ void intercept_calls() {
 						break;
 
 					case __NR_pwritev:
-						regs.arg1 = get_mapping(regs.arg1);
+						//regs.arg1 = get_mapping(regs.arg1);
 						regs.retval = lind_pwrite(regs.arg1,
 								get_mem(regs.arg2, regs.arg3), regs.arg3,
 								regs.arg4);
