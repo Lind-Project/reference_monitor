@@ -106,9 +106,9 @@ void intercept_calls() {
 				switch (syscall_num) {
 				case __NR_close:
 					if ((int32_t) regs.arg1 >= 0) {
-			;
-					regs.arg1 = get_mapping(regs.arg1);
-					set_args(&regs);
+						;
+						regs.arg1 = get_mapping(regs.arg1);
+						set_args(&regs);
 					}
 					break;
 				case __NR_mmap:
@@ -215,7 +215,6 @@ void intercept_calls() {
 						path = get_path(regs.arg1);
 						regs.retval = lind_statfs(path, &stfs);
 						set_mem(regs.arg2, &stfs, sizeof(stfs));
-
 						fprintf(stderr, "statfs(%s)=%d \n", path, regs.retval);
 
 						break;
@@ -225,10 +224,9 @@ void intercept_calls() {
 						struct lind_stat st;
 						regs.retval = lind_stat(path, &st);
 						set_mem(regs.arg2, &st, sizeof(st));
-
 						fprintf(stderr, "stat(%s)=%d \n", path, regs.retval);
-
 						break;
+
 					case __NR_fstat:
 						regs.retval = lind_fstat(regs.arg1, &st);
 						set_mem(regs.arg2, &st, sizeof(st));
@@ -431,50 +429,110 @@ void intercept_calls() {
 								regs.retval);
 						break;
 
-					case __NR_recvfrom:
-						regs.retval = lind_recvfrom(regs.arg1,
-								get_mem(regs.arg2, regs.arg3), regs.arg3,
-								regs.arg4,
-								get_mem(regs.arg2,
-										sizeof(struct lind_sockaddr)),
-								regs.arg5);
+					case __NR_recvfrom: {
+						var = malloc(regs.arg3);
+						struct lind_sockaddr * buff = malloc(regs.arg6);
+						regs.retval = lind_recvfrom(regs.arg1, var, regs.arg3,
+								regs.arg4, buff, regs.arg6);
+						set_mem(regs.arg2, var, regs.arg3);
+						set_mem(regs.arg5, buff, regs.arg6);
+					}
 						fprintf(stderr, "recvfrom(%ld)=%ld \n", regs.arg1,
 								regs.retval);
 						break;
 
-					case __NR_recvmsg:
-						regs.retval = lind_recvmsg(regs.arg1,
-								get_mem(regs.arg2, sizeof(struct lind_msghdr)),
-								regs.arg3);
+					case __NR_recvmsg: {
+						struct lind_msghdr msg_orig;
+						struct lind_msghdr* msg = (struct lind_msghdr*) get_mem(
+								regs.arg2, sizeof(struct lind_msghdr));
+						msg_orig = *msg;
+						struct lind_iovec* iovs = (struct lind_iovec*) get_mem(
+								msg->msg_iov,
+								sizeof(struct lind_iovec) * msg->msg_iovlen);
+						struct lind_iovec* iovs_orig =
+								(struct lind_iovec*) malloc(
+										sizeof(struct lind_iovec)
+												* msg->msg_iovlen);
+						memcpy(iovs_orig, iovs,
+								sizeof(struct lind_iovec) * msg->msg_iovlen);
+						for (int i = 0; i < msg->msg_iovlen; ++i) {
+							//iovs[i].iov_base = get_mem(iovs[i].iov_base, iovs[i].iov_len);
+							iovs[i].iov_base = malloc(iovs[i].iov_len);
+						}
+						msg->msg_iov = iovs;
+						//msg->msg_name = get_mem(msg->msg_name, msg->msg_namelen);
+						msg->msg_name = malloc(msg->msg_namelen);
+						//msg->msg_control = get_mem(msg->msg_control, msg->msg_controllen);
+						msg->msg_control = malloc(msg->msg_controllen);
+
+						regs.retval = lind_recvmsg(regs.arg1, msg, regs.arg3);
+
+						set_mem(msg_orig.msg_name, msg->msg_name,
+								msg->msg_namelen);
+						set_mem(msg_orig.msg_control, msg->msg_control,
+								msg->msg_controllen);
+						for (int i = 0; i < msg->msg_iovlen; ++i) {
+							set_mem(iovs_orig[i].iov_base, iovs[i].iov_base,
+									iovs_orig[i].iov_len);
+						}
+						free(iovs);
+						free(iovs_orig);
+						free(msg);
 						fprintf(stderr, "recvmsg(%ld)=%ld \n", regs.arg1,
 								regs.retval);
-
+					}
 						break;
 
 					case __NR_sendmsg:
-						regs.retval = lind_sendmsg(regs.arg1,
-								get_mem(regs.arg2, sizeof(struct lind_msghdr)),
-								regs.arg3);
+					{
+						struct lind_msghdr msg_orig;
+						struct lind_msghdr* msg = (struct lind_msghdr*) get_mem(
+								regs.arg2, sizeof(struct lind_msghdr));
+						msg_orig = *msg;
+						struct lind_iovec* iovs = (struct lind_iovec*) get_mem(
+								msg->msg_iov,
+								sizeof(struct lind_iovec) * msg->msg_iovlen);
+						struct lind_iovec* iovs_orig =
+								(struct lind_iovec*) malloc(
+										sizeof(struct lind_iovec)
+												* msg->msg_iovlen);
+						memcpy(iovs_orig, iovs,
+								sizeof(struct lind_iovec) * msg->msg_iovlen);
+						for (int i = 0; i < msg->msg_iovlen; ++i) {
+							iovs[i].iov_base = get_mem(iovs[i].iov_base,
+									iovs[i].iov_len);
+						}
+						msg->msg_iov = iovs;
+						//msg->msg_name = get_mem(msg->msg_name, msg->msg_namelen);
+						msg->msg_name = malloc(msg->msg_namelen);
+						//msg->msg_control = get_mem(msg->msg_control, msg->msg_controllen);
+						msg->msg_control = malloc(msg->msg_controllen);
+
+						regs.retval = lind_sendmsg(regs.arg1, msg, regs.arg3);
+					}
 						fprintf(stderr, "sendmsg(%ld)=%ld \n", regs.arg1,
 								regs.retval);
 						break;
 
-					case __NR_getsockname:
-						regs.retval = lind_getsockname(regs.arg1,
-								get_mem(regs.arg2,
-										sizeof(struct lind_sockaddr)),
+					case __NR_getsockname: {
+						struct lind_sockaddr *buff = malloc(regs.arg3);
+
+						regs.retval = lind_getsockname(regs.arg1, buff,
 								regs.arg3);
+						set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
+					}
 						fprintf(stderr, "getsockname(%ld)=%ld \n", regs.arg1,
 								regs.retval);
 						break;
 
 					case __NR_getsockopt:
-						regs.retval = lind_getsockopt(regs.arg1, regs.arg2,
-								regs.arg3,
-								get_mem(regs.arg4,
-										sizeof(struct lind_sockaddr)),
-								regs.arg5);
 
+					{
+						struct lind_sockaddr *buff = malloc(regs.arg2);
+						regs.retval = lind_getsockopt(regs.arg1, regs.arg2,
+								regs.arg3, buff, regs.arg5);
+						set_mem(regs.arg4, buff, sizeof(struct lind_sockaddr));
+					}
 						fprintf(stderr, "getsockopt(%ld)=%ld \n", regs.arg1,
 								regs.retval);
 						break;
@@ -497,53 +555,67 @@ void intercept_calls() {
 
 						break;
 
-					case __NR_select:
-						regs.retval = lind_select(regs.arg1,
-								get_mem(regs.arg2, sizeof(fd_set)),
-								get_mem(regs.arg3, sizeof(fd_set)),
-								get_mem(regs.arg4, sizeof(fd_set)),
-								get_mem(regs.arg5, sizeof(struct timeval)));
 
-						fprintf(stderr, "select(%ld)=%ld \n", regs.arg1,
-								regs.retval);
-						break;
-
-					case __NR_getpeername:
-						regs.retval = lind_getpeername(regs.arg1,
-								get_mem(regs.arg2,
-										sizeof(struct lind_sockaddr)),
+					case __NR_getpeername: {
+						struct lind_sockaddr *buff = malloc(regs.arg3);
+						regs.retval = lind_getpeername(regs.arg1, buff,
 								regs.arg3);
+						set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
 
 						fprintf(stderr, "getpeername(%ld)=%ld \n", regs.arg1,
 								regs.retval);
+					}
+						break;
 
+					case __NR_select: {
+						void* set1 = get_mem(regs.arg2, sizeof(fd_set));
+						void* set2 = get_mem(regs.arg3, sizeof(fd_set));
+						void* set3 = get_mem(regs.arg4, sizeof(fd_set));
+						void* tv = get_mem(regs.arg5, sizeof(struct timeval));
+						regs.retval = lind_select(regs.arg1, set1, set2, set3,
+								tv);
+						set_mem(regs.arg2, set1, sizeof(fd_set));
+						set_mem(regs.arg3, set2, sizeof(fd_set));
+						set_mem(regs.arg4, set3, sizeof(fd_set));
+						set_mem(regs.arg5, tv, sizeof(struct timeval));
+
+						fprintf(stderr, "select(%ld)=%ld \n", regs.arg1,
+								regs.retval);
+					}
 						break;
 
 					case __NR_poll:
-						regs.retval = lind_poll(
-								get_mem(regs.arg1, sizeof(struct lind_pollfd)),
-								get_mem(regs.arg1, sizeof(lind_nfds_t)),
-								regs.arg2);
+					{
+						struct lind_pollfd * lpfd = malloc(sizeof(struct lind_pollfd));
+						regs.retval = lind_poll(lpfd, regs.arg2, regs.arg3);
+						set_mem(regs.arg1, lpfd, sizeof(struct lind_pollfd));
+					}
 						fprintf(stderr, "poll(%ld)=%ld \n", regs.arg1,
 								regs.retval);
-
 						break;
 
 					case __NR_epoll_ctl:
+					{
+						struct lind_epoll_event *event = malloc(sizeof (struct lind_epoll_event));
 						regs.retval = lind_epoll_ctl(regs.arg1, regs.arg2,
 								regs.arg3,
 								get_mem(regs.arg4,
 										sizeof(struct lind_epoll_event)));
+
+						set_mem(regs.arg4, event, sizeof(struct lind_epoll_event));
+					}
 						fprintf(stderr, "epoll_ctl(%ld)=%ld \n", regs.arg1,
 								regs.retval);
 
 						break;
 
 					case __NR_epoll_wait:
-						regs.retval = lind_epoll_wait(regs.arg1,
-								get_mem(regs.arg2,
-										sizeof(struct lind_epoll_event)),
+					{
+						struct lind_epoll_event *event = malloc(sizeof (struct lind_epoll_event));
+						regs.retval = lind_epoll_wait(regs.arg1, event,
 								regs.arg3, regs.arg4);
+						set_mem(regs.arg2, event, sizeof(struct lind_epoll_event));
+					}
 						fprintf(stderr, "epoll_wait(%ld)=%ld \n", regs.arg1,
 								regs.retval);
 
