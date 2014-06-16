@@ -5,8 +5,6 @@
  *      Author:  Ali Gholami, Benson Tsai
  */
 
-#include <stdlib.h>
-#include <limits.h>
 #include "lind_util.h"
 
 char *trim(char * str) {
