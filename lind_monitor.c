@@ -46,7 +46,7 @@ void init_ptrace(int argc, char** argv) {
 		kill(getpid(), SIGSTOP);
 
 		/* the binary or command to be executed */
-		int ret_stat = execlp(argv[1], argv[2], NULL);
+		int ret_stat = execve(argv[0], argv, NULL);
 		if (ret_stat < 0) {
 			perror("execlp: ");
 		}
@@ -58,13 +58,14 @@ void intercept_calls() {
 
 	int entering = 1;
 	int status, syscall_num, ret_val;
-	char * path;
-	char * path1;
+	char *path;
+	char *path1;
 	char *var;
+	void *buff;
 	struct syscall_args regs, regs_orig;
 
 	/* wait for the child to stop */
-	wait(&status);
+	waitpid(tracee, &status, 0);
 
 	ptrace(PTRACE_SETOPTIONS, tracee, 0,
 			PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEEXIT);
@@ -75,7 +76,7 @@ void intercept_calls() {
 		ptrace(PTRACE_SYSCALL, tracee, 0, 0);
 
 		/* wait for other syscalls */
-		wait(&status);
+		waitpid(tracee, &status, 0);
 
 		/* if tracee is terminated */
 		if (WIFEXITED(status))
@@ -88,14 +89,13 @@ void intercept_calls() {
 
 		if ((WSTOPSIG(status) == SIGTRAP)
 				&& (status & (PTRACE_EVENT_EXIT << 8))) {
+
 			get_args(&regs);
+
 			if (regs.syscall != __NR_execve)
 				printf("%s(%d)\n", syscall_names[regs.syscall], regs.arg1);
 
-		}
-
-		else if (WSTOPSIG(status) == (SIGTRAP | 0x80)) {
-
+		} else if (WSTOPSIG(status) == (SIGTRAP | 0x80)) {
 			if (entering == 1) {
 				entering = 0;
 				get_args(&regs);
@@ -106,14 +106,12 @@ void intercept_calls() {
 				switch (syscall_num) {
 				case __NR_close:
 					if ((int32_t) regs.arg1 >= 0) {
-						;
 						regs.arg1 = get_mapping(regs.arg1);
 						set_args(&regs);
 					}
 					break;
 				case __NR_mmap:
 					if (((int32_t) regs.arg5) >= 0) {
-
 						regs.arg5 = get_mapping(regs.arg5);
 						set_args(&regs);
 					}
@@ -121,9 +119,7 @@ void intercept_calls() {
 				default:
 					break;
 				}
-
 			} else {
-
 				/* get the tracee registers */
 				get_args(&regs);
 				entering = 1;
@@ -136,7 +132,6 @@ void intercept_calls() {
 
 				} else if (monitor_actions[syscall_num] == ALLOW_OS) {
 
-					/* */
 					switch (syscall_num) {
 
 					/* if pwritev is allowed by OS */
@@ -173,11 +168,12 @@ void intercept_calls() {
 						break;
 
 					case __NR_read:
-						var = malloc(regs.arg3);
-						regs.retval = lind_read(regs.arg1, var, regs.arg3);
-						set_mem(regs.arg2, var, regs.arg3);
-						fprintf(stderr, "read(%ld, 0x%lx[\"%s\"], %ld) = %ld",
-								regs.arg1, regs.arg2, var, regs.arg3,
+						buff = malloc(regs.arg3);
+						regs.retval = lind_read(regs.arg1, buff, regs.arg3);
+						set_mem(regs.arg2, buff, regs.arg3);
+						fprintf(stderr,
+								"read(%ld, 0x%lx[\"%s\"], %ld) = %ld \n",
+								regs.arg1, regs.arg2, buff, regs.arg3,
 								regs.retval);
 						break;
 
@@ -379,7 +375,6 @@ void intercept_calls() {
 								regs.arg1, regs.arg2,
 								get_mem(regs.arg2, regs.arg3), regs.arg3,
 								regs.arg4, regs.retval);
-
 						break;
 
 					case __NR_socket:
@@ -483,8 +478,7 @@ void intercept_calls() {
 					}
 						break;
 
-					case __NR_sendmsg:
-					{
+					case __NR_sendmsg: {
 						struct lind_msghdr msg_orig;
 						struct lind_msghdr* msg = (struct lind_msghdr*) get_mem(
 								regs.arg2, sizeof(struct lind_msghdr));
@@ -514,7 +508,8 @@ void intercept_calls() {
 								regs.retval);
 						break;
 
-					case __NR_getsockname: {
+					case __NR_getsockname:
+					{
 						struct lind_sockaddr *buff = malloc(regs.arg3);
 
 						regs.retval = lind_getsockname(regs.arg1, buff,
@@ -526,7 +521,6 @@ void intercept_calls() {
 						break;
 
 					case __NR_getsockopt:
-
 					{
 						struct lind_sockaddr *buff = malloc(regs.arg2);
 						regs.retval = lind_getsockopt(regs.arg1, regs.arg2,
@@ -554,7 +548,6 @@ void intercept_calls() {
 								regs.arg1, regs.arg2, regs.retval);
 
 						break;
-
 
 					case __NR_getpeername: {
 						struct lind_sockaddr *buff = malloc(regs.arg3);
@@ -584,9 +577,9 @@ void intercept_calls() {
 					}
 						break;
 
-					case __NR_poll:
-					{
-						struct lind_pollfd * lpfd = malloc(sizeof(struct lind_pollfd));
+					case __NR_poll: {
+						struct lind_pollfd * lpfd = malloc(
+								sizeof(struct lind_pollfd));
 						regs.retval = lind_poll(lpfd, regs.arg2, regs.arg3);
 						set_mem(regs.arg1, lpfd, sizeof(struct lind_pollfd));
 					}
@@ -594,27 +587,29 @@ void intercept_calls() {
 								regs.retval);
 						break;
 
-					case __NR_epoll_ctl:
-					{
-						struct lind_epoll_event *event = malloc(sizeof (struct lind_epoll_event));
+					case __NR_epoll_ctl: {
+						struct lind_epoll_event *event = malloc(
+								sizeof(struct lind_epoll_event));
 						regs.retval = lind_epoll_ctl(regs.arg1, regs.arg2,
 								regs.arg3,
 								get_mem(regs.arg4,
 										sizeof(struct lind_epoll_event)));
 
-						set_mem(regs.arg4, event, sizeof(struct lind_epoll_event));
+						set_mem(regs.arg4, event,
+								sizeof(struct lind_epoll_event));
 					}
 						fprintf(stderr, "epoll_ctl(%ld)=%ld \n", regs.arg1,
 								regs.retval);
 
 						break;
 
-					case __NR_epoll_wait:
-					{
-						struct lind_epoll_event *event = malloc(sizeof (struct lind_epoll_event));
+					case __NR_epoll_wait: {
+						struct lind_epoll_event *event = malloc(
+								sizeof(struct lind_epoll_event));
 						regs.retval = lind_epoll_wait(regs.arg1, event,
 								regs.arg3, regs.arg4);
-						set_mem(regs.arg2, event, sizeof(struct lind_epoll_event));
+						set_mem(regs.arg2, event,
+								sizeof(struct lind_epoll_event));
 					}
 						fprintf(stderr, "epoll_wait(%ld)=%ld \n", regs.arg1,
 								regs.retval);
@@ -678,7 +673,6 @@ void set_mem(long addr, void * buff, size_t count) {
 		ret = ptrace(PTRACE_POKEDATA, tracee,
 				(char *) (addr + sizeof(long) * fullblocks), value);
 	}
-
 }
 
 /* get count number of memory defined through an address */

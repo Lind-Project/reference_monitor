@@ -125,5 +125,4 @@ struct lind_msghdr
     int msg_flags;      /* Flags on received message.  */
 };
 
-
 #endif /* LIND_STAT_H_ */
