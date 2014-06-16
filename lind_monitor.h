@@ -19,10 +19,11 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <linux/unistd.h>	/* __NR_XXX */
+#include "lind_util.h"
 
 #ifdef __x86_64__
 
-#define CONFIG_FILE "/home/gholami/workspace/monitor/configs/monitor.cfg"
+#define CONFIG_FILE get_lindcwd()
 
 #define SIZE(a) (int)(sizeof(a)/sizeof(a[0]))
 
@@ -32,6 +33,7 @@ struct syscall_args {
 	uint64_t retval;
 	struct user user;
 };
+
 
 /* initialize a process to be traced */
 void init_ptrace(int argc, char** argv);
@@ -51,8 +53,7 @@ void get_args(struct syscall_args *args);
 void set_args(struct syscall_args *args);
 /* load the config file containing the policies to dispatch the syscalls */
 int load_config();
-char *trim(char * str);
-char *get_substring(char *string, int position, int length);
+
 
 /* possible actions for syscalls */
 enum monitor_action {
