@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -pthread
+CFLAGS = -g -Wall -pthread 
 BUILD_DIR= utf/build/testcases
 HEADERS = testcases/testcases.h
 LIBS= /usr/include
@@ -14,7 +14,7 @@ OBJS=$(SRCS:.c=.o )
 
 all:$(OBJS)
 %.o: %.c
-	$(CC) $(CFLAGS) $(HEADERS)  $< -o $(OBJDIR)/$@
+	$(CC) $(CFLAGS) $(HEADERS)  $< -o $(OBJDIR)/$@ -lcurl
          
 clean:
 	@- $(RM) $(BUILD_DIR)/*
