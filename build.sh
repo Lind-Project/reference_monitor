@@ -1,7 +1,10 @@
-#!/bin/bash
 
-MAKE_FILE=./build/
-GEN_SYSCALLS=./configs/syscall_generator
+#!/bin/bash
+ 
+ 
+MAKE_FILE=./Release/
+
+GEN_SYSCALLS=./src/main/lind_monitor/configs/syscall_generator
 
 if [ -z "$GEN_SYSCALLS" ]; then
    echo "No syscall generator found"
@@ -14,7 +17,8 @@ if [ -z "$MAKE_FILE" ]; then
    exit 1
 fi
 
-$GEN_SYSCALLS > configs/syscalls.h
+$GEN_SYSCALLS > ./src/main/lind_monitor/configs/syscall_generator/syscalls.h
+
 cd $MAKE_FILE
 make clean
 make
