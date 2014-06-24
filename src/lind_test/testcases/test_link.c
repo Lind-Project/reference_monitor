@@ -9,11 +9,11 @@
 
 int main(int argc, char **argv) {
 
-	char cwd[MAXBUF];
-	char *src = "/testfiles/test_link.txt";
-	char *dest = "/testfiles/test_unlink.txt";
-
-	test_link(strcat(getcwd(cwd, sizeof(cwd)), src), strcat(getcwd(cwd, sizeof(cwd)), dest));
+	char cwd1[MAXBUF];
+	char cwd2[MAXBUF];
+	char *src = strcat(getcwd(cwd1, sizeof(cwd1)), "/testfiles/test_link.txt");
+	char *dest =  strcat(getcwd(cwd2, sizeof(cwd2)), "/testfiles/test_unlink.txt");
+	test_link(src, dest);
 	return 0;
 }
 

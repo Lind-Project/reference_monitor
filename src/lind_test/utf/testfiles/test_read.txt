@@ -1,7 +1,0 @@
-Some random text!
-
-A large amount of these standard applications will be moved out of the standard package. The transfer
-of the applications will be made gradually and will 
-be uninstalled from all computers. The applications will still be available and if necessary you can
-choose to install the application yourself in the self
-service portal Software Center.

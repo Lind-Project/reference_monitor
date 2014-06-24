@@ -17,7 +17,6 @@ int main(int argc, char **argv) {
 }
 
 void test_unlink(char *dest) {
-
 	if (unlink(dest) == -1) {
 			fprintf(stderr, " could not unlink %s \n", dest);
 			return;

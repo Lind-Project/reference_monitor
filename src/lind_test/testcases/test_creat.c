@@ -20,9 +20,10 @@ void test_creat(char *path)
 
 	int fd;
 	fd = creat(path, S_IREAD | S_IWRITE);
-	if (fd == -1)
+	if (fd == -1){
 		fprintf(stderr, "Error in opening datafile.dat\n");
 		return;
+	}
 	else {
 		fprintf(stdout, "datafile.dat opened for read/write access\n");
 		fprintf(stdout, "datafile.dat is currently empty\n");
