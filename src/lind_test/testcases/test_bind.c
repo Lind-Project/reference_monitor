@@ -37,7 +37,11 @@ void test_bind( )
          return;
     }
 
-	close(sockfd);
+
+	if (close(sockfd)!= 0){
+		       fprintf(stderr, "close() error \n");
+	   	   return;
+		}
 
     fprintf(stdout, "bind() successfully %d \n", ret);
 

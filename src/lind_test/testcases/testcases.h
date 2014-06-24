@@ -96,6 +96,8 @@ void test_getsockname();
 void test_getsockopt();
 void test_creat();
 void test_dup();
-
+void test_dup2();
+void test_readp64(char *path);
+void test_writev(char *path);
 
 #endif /* TEST_UGID_H_ */

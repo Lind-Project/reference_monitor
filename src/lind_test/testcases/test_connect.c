@@ -34,5 +34,12 @@ void test_connect()
 		return;
 	}
 
+
+	if (close(sockfd)!= 0){
+		 fprintf(stderr, "close() error \n");
+  	     return;
+ 	}
+
+
 	fprintf(stdout, "successfully accepted connection \n");
 }

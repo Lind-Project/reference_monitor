@@ -108,6 +108,7 @@ void * test_listen() {
 
 	close(sd2);
 	close(sd1);
+
 }
 
 void * test_client()
@@ -152,5 +153,8 @@ void * test_client()
 
 	fprintf(stdout, "server %s \n", recv_buf);
 	fprintf(stdout, "%d bytes received \n", len);
-	close(sockfd);
+
+	 if (close(sockfd)!= 0){
+		       fprintf(stderr, "close() error \n");
+		}
 }

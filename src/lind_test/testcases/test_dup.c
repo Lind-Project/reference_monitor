@@ -9,10 +9,9 @@
 
 int main()
 {
-	char cwd [MAXBUF];
-	char *path = "/testfiles/test_read.txt";
-
-	test_dup(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char cwd[MAXBUF];
+	char *path = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/test_read.txt");
+	test_dup(path);
 
 	return 0;
 }
@@ -25,9 +24,18 @@ void test_dup(char *path)
 		fprintf(stderr, "%s \n", path);
 		return;
 	}
-	close(1);
+
+	if (close(1) != 0) {
+		fprintf(stderr, "close() error \n");
+		return;
+	}
+
 	dup(fd);
-	close(fd);
+
+	if (close(fd) != 0) {
+		fprintf(stderr, "close() error \n");
+		return;
+	}
 
 	fprintf(stdout, "Lind dup executed successfully!\n");
 }

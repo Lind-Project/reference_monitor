@@ -1,21 +1,22 @@
+INCLUD= /usr/include
+
 CC = gcc
-CFLAGS = -g -Wall -pthread -Wformat
+CFLAGS = -Wall -g -O2 $(IFLAGS) -std=c99 
+LFLAGS= -lpthread -lcurl
+IFLAGS = -I$(INCLUDE) 
+
 BUILD_DIR= utf/build/testcases
 HEADERS = testcases/testcases.h
-LIBS= /usr/include
-
 OBJDIR = utf/build
 
 SRCS=$(wildcard testcases/*.c)
 OBJS=$(SRCS:.c=.o )
-
 	
 .PHONY: all clean
 
-all:$(OBJS)
+all: $(OBJS) $(HEADERS)
 %.o: %.c
-	$(CC) $(CFLAGS) $(HEADERS)  $< -o $(OBJDIR)/$@ -lcurl
+	$(CC) $(CFLAGS) $< -o $(OBJDIR)/$@ $(LFLAGS)
          
 clean:
 	@- $(RM) $(BUILD_DIR)/*
-

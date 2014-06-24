@@ -10,8 +10,8 @@
 int main(int argc, char **argv)
 {
 	char cwd [MAXBUF];
-	char *path = "/testfiles/test_read.txt";
-	test_open(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_read.txt");
+	test_open(path);
 	return 0;
 }
 
@@ -24,7 +24,10 @@ void test_open(char *path)
 		return;
 	}
 
-	close(fd);
+	 if (close(fd)!= 0){
+	     fprintf(stderr, "close() error \n");
+	     return;
+	}
 
 	fprintf(stdout, "open(%s) successfully \n", path);
 }

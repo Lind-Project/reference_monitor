@@ -10,8 +10,8 @@
 int main(int argc, char **argv)
 {
 	char cwd[4096];
-	char *path = "/testfiles/test_read.txt";
-	test_stat(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_read.txt");
+	test_stat(path);
 	return 0;
 }
 

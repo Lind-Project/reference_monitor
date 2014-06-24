@@ -50,6 +50,8 @@ void test_socket()
 		sleep(1);
 	}
 
-	close(sockfd);
-
+   if (close(sockfd)!= 0){
+	   fprintf(stderr, "close() error \n");
+	   return;
+	}
 }

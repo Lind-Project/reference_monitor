@@ -30,8 +30,10 @@ void test_fstatfs(char *path) {
 		return;
 	}
 
-	close(fd);
-
+	 if (close(fd)!= 0){
+		       fprintf(stderr, "close() error \n");
+		   	   return;
+	 }
 	fprintf(stdout, "fstatfs   returned       %d \n ", ret);
 
 }

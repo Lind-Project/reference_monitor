@@ -10,8 +10,8 @@
 int main(int argc, char **argv)
 {
 	char cwd [4096];
-	char *path = "/testfiles/test_read.txt";
-	test_read(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_read.txt");
+	test_read(path);
 	return 0;
 }
 
@@ -34,7 +34,12 @@ void test_read(char *path)
 	}
 
 	fprintf(stdout, "\n");
-	close(fd);
+
+
+	   if (close(fd)!= 0){
+	       fprintf(stderr, "close() error \n");
+	   	   return;
+	   }
 
 	fprintf(stdout, "read(%s) finished \n", path);
 

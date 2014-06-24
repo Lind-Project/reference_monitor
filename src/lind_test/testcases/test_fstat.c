@@ -10,8 +10,8 @@
 int main(int argc, char **argv)
 {
 	char cwd[4096];
-	char *path = "/testfiles/test_read.txt";
-	test_fstat(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_read.txt");
+	test_fstat(path);
 	return 0;
 }
 
@@ -79,5 +79,9 @@ void test_fstat(char *path)
 	fprintf(stdout, "Last status change:       %s", ctime(&sb.st_ctime));
 	fprintf(stdout, "Last file access:         %s", ctime(&sb.st_atime));
 	fprintf(stdout, "Last file modification:   %s", ctime(&sb.st_mtime));
-	close(fd);
+
+	if (close(fd)!= 0){
+		       fprintf(stderr, "close() error \n");
+	   	   return;
+		}
 }

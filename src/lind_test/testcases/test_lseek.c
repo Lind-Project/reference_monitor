@@ -9,9 +9,9 @@
 
 int main(int argc, char **argv)
 {
-	char cwd[4096];
-	char *path = "/testfiles/test_lseek.txt";
-	test_lseek(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char cwd[MAXBUF];
+	char *path = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/test_lseek.txt");
+	test_lseek(path);
 	return 0;
 }
 
@@ -32,6 +32,9 @@ void test_lseek(char *path)
       fprintf(stderr, "can't read %s \n", path);
    }
 
-    close(fd);
+   if (close(fd)!= 0){
+  	       fprintf(stderr, "close() error \n");
+  	   	   return;
+  		}
 }
 

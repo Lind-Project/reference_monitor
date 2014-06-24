@@ -9,9 +9,9 @@
 
 int main(int argc, char **argv)
 {
-	char cwd [4096];
-	char *path = "/testfiles/test_access.txt";
-	test_access(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char cwd [MAXBUF];
+	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_access.txt");
+	test_access(path);
 	return 0;
 }
 

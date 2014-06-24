@@ -11,8 +11,8 @@
 int main(int argc, char **argv)
 {
 	char cwd [MAXBUF];
-	char *path = "/testfiles/tmp_lind_test";
-	test_mkdir(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char *path = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/tmp_lind_test");
+	test_mkdir(path);
 	return 0;
 }
 

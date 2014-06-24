@@ -40,7 +40,11 @@ void test_shutdown()
     }
 
     shutdown(sockfd, SHUT_RD);
-	close(sockfd);
+
+    if (close(sockfd)!= 0){
+	       fprintf(stderr, "close() error \n");
+	   	   return;
+    }
 
 	fprintf(stdout, "Shutdown successfully %d \n", ret);
 }

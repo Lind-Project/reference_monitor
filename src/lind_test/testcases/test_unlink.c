@@ -10,15 +10,14 @@
 
 int main(int argc, char **argv) {
 	char cwd[MAXBUF];
-	char *dest = "/testfiles/test_unlink.txt";
-
-	test_unlink(strcat(getcwd(cwd, sizeof(cwd)), dest));
+	char *dest = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_unlink.txt");
+	test_unlink(dest);
 	return 0;
 }
 
 void test_unlink(char *dest) {
 	if (unlink(dest) == -1) {
-			fprintf(stderr, " could not unlink %s \n", dest);
+			fprintf(stderr, "unlink(%s) error \n", dest);
 			return;
 		}
 

@@ -9,8 +9,8 @@
 
 int main() {
 	char cwd [MAXBUF];
-	char *path = "/testfiles/test_creat.txt";
-	test_creat(strcat(getcwd(cwd, sizeof(cwd)), path));
+	char *path = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/test_creat.txt");
+	test_creat(path);
 	return 0;
 }
 
@@ -24,7 +24,11 @@ void test_creat(char *path)
 		return;
 	}
 
-	close(fd);
+
+	if (close(fd)!= 0){
+	       fprintf(stderr, "close() error \n");
+	   	   return;
+	}
 
 	fprintf(stdout, "%s opened successfully for read/write access \n", path);
 }
