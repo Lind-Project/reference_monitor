@@ -8,19 +8,6 @@
 
 #include "testcases.h"
 
-/*  Taken from: http://www.cs.utah.edu/~swalton/listings/sockets/programs/ */
-
-#define PORT_TEST       80            /* connection port */
-#define SERVER_ADDR     "173.194.121.34"     /* Google server */
-#define MAXBUF          4096
-
-int socket_OK = 0;
-
-void sigpipe_handler()
-{
-	fprintf(stdout, "SIGPIPE caught\n");
-	socket_OK = 0;
-}
 
 int main(int argc, char **argv)
 {
@@ -30,6 +17,7 @@ int main(int argc, char **argv)
 
 void test_socket()
 {
+	/* taken from: http://www.cs.utah.edu/~swalton/listings/sockets/programs/ */
 	int sockfd;
 	struct sockaddr_in dest;
 	char buffer[MAXBUF];
@@ -37,30 +25,23 @@ void test_socket()
 	int counter = 0;
 
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		fprintf(stderr, "Socket error %d \n", sockfd);
+		fprintf(stderr, "socket() error %d \n", sockfd);
 	}
 
 	bzero(&dest, sizeof(dest));
 	dest.sin_family = AF_INET;
-	dest.sin_port = htons(80);
+	dest.sin_port = htons(HTTP_TEST_PORT);
 	dest.sin_addr.s_addr = inet_addr(SERVER_ADDR);
 
-
-	signal(SIGPIPE, sigpipe_handler);
 
 	int ret;
 
 	if ((ret = connect(sockfd, (struct sockaddr*) &dest, sizeof(dest))) != 0) {
-		fprintf(stderr, "Connect error %d  \n", ret);
+		fprintf(stderr, "connect() error %d  \n", ret);
 		return;
 	}
 
-	socket_OK = 1;
-
 	while (1) {
-		if (!socket_OK)
-			break;
-
 		send(sockfd, "test\n", 5, 0);
 		fprintf(stdout, "message sent\n");
 		bzero(buffer, MAXBUF);
@@ -71,5 +52,4 @@ void test_socket()
 
 	close(sockfd);
 
-	fprintf(stdout, "Connect closed \n");
 }

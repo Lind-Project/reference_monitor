@@ -6,7 +6,6 @@
  *      Author:  Ali Gholami
  */
 
-
 #include "testcases.h"
 
 int main(int argc, char **argv)
@@ -17,8 +16,13 @@ int main(int argc, char **argv)
 
 void test_getpid()
 {
-	pid_t pid = getpid();
-	if (pid == -1) {
-		fprintf(stderr, "Could not get the pid, %d \n", pid);
-	}
+  char process[20];
+  pid_t pid;
+
+  readlink ("/proc/self", process, sizeof(process));
+  sscanf (process, "%d", &pid);
+
+  assert(getpid() == pid);
+
+  fprintf(stdout, "Current effective user id number is: %d \n", pid);
 }

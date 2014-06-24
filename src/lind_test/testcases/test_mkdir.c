@@ -24,8 +24,9 @@ void test_mkdir(char *path)
 	}
 
 	ret = rmdir(path);
+
 	if (ret == -1) {
-		fprintf(stderr, "Could not cleanup directory %s \n", path);
+		fprintf(stderr, "cleanup(%s) directory error \n", path);
 	}
 
 }

@@ -29,14 +29,14 @@ void test_select(char *src, char *dest) {
 	int fd1;
 	fd1 = open(src, O_APPEND);
 	if (fd1 < 0) {
-		fprintf(stderr, "Could not open %s \n", src);
+		fprintf(stderr, "open(%s) error \n", src);
 		return;
 	}
 
 	int fd2;
 	fd2 = open(dest, O_APPEND);
 	if (fd2 < 0) {
-		fprintf(stderr, "Could not open %s \n", dest);
+		fprintf(stderr, "open(%s) error \n", dest);
 		return;
 	}
 

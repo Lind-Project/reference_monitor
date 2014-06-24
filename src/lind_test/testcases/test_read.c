@@ -18,7 +18,10 @@ int main(int argc, char **argv)
 void test_read(char *path)
 {
 	int fd;
-	char buff[4096];
+	int nread;
+
+	char buff[MAXBUF];
+
 	fd = open(path, O_RDONLY);
 
 	if (fd < 0){
@@ -26,11 +29,14 @@ void test_read(char *path)
 		return;
 	}
 
-	int nread;
 	while ((nread = read(fd, buff, 4096)) > 0){
 		fprintf(stdout, "%s", buff);
 	}
-	fprintf(stdout, "--- Read file finished \n");
+
+	fprintf(stdout, "\n");
 	close(fd);
+
+	fprintf(stdout, "read(%s) finished \n", path);
+
 }
 

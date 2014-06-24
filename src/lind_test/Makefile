@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -pthread 
+CFLAGS = -g -Wall -pthread -Wformat
 BUILD_DIR= utf/build/testcases
 HEADERS = testcases/testcases.h
 LIBS= /usr/include

@@ -7,7 +7,8 @@
 
 #include "testcases.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
 	char cwd1[MAXBUF];
 	char cwd2[MAXBUF];
@@ -17,13 +18,14 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-void test_link(char *src, char * dest) {
+void test_link(char *src, char * dest)
+{
+
 	if ((link(src, dest)) == -1) {
 		fprintf(stderr, " could not link %s to %s \n", src, dest);
 		return;
 	}
 
 	fprintf(stdout, "linked %s to %s \n", src, dest);
-
 }
 

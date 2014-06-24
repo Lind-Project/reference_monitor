@@ -21,10 +21,13 @@ void test_rmdir(char *path){
 	fprintf(stdout, "Create directory %s \n", path);
 
 	if (ret == -1) {
-		fprintf(stderr, "Could not create directory to test chown() %s \n", path);
+		fprintf(stderr, "chown(%s) error \n", path);
 	}
 
 	if (rmdir(path) == -1) {
-		fprintf(stderr, "Removed directory %s \n", path);
+		fprintf(stderr, "rmdir(%s) error \n", path);
 	}
+
+	fprintf(stdout, "rmdir(%s)  \n", path);
+
 }

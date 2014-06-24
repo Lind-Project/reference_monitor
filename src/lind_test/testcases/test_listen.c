@@ -6,13 +6,7 @@
  *
  */
 
-
-/* taken from http://www.tenouk.com/Module41b.html */
-
-
 #include "testcases.h"
-
-#define SERVER_PORT 5002
 
 int main(int argc, char *argv[]) {
 
@@ -46,9 +40,9 @@ int main(int argc, char *argv[]) {
 }
 
 void * test_listen() {
-	int len, rc;
 
-	int sd1, sd2;
+	/* taken from http://www.tenouk.com/Module41b.html */
+	int len, rc, sd1, sd2;
 	char buffer[MAXBUF];
 
 	struct sockaddr_in addr;
@@ -57,7 +51,7 @@ void * test_listen() {
 
 	if (sd1 < 0) {
 		fprintf(stderr, "socket() error \n");
-		return;
+
 	}
 
 	/* Bind the socket */
@@ -65,14 +59,14 @@ void * test_listen() {
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(SERVER_PORT);
+	addr.sin_port = htons(LISTEN_SERVER_PORT);
 
 	rc = bind(sd1, (struct sockaddr *) &addr, sizeof(addr));
 
 	if (rc < 0) {
 		fprintf(stderr, "bind() error \n");
 		close(sd1);
-		return;
+
 	}
 
 	rc = listen(sd1, 5);
@@ -80,7 +74,7 @@ void * test_listen() {
 	if (rc < 0) {
 		fprintf(stderr, "listen() error \n");
 		close(sd1);
-		return;
+
 	}
 
 	sd2 = accept(sd1, NULL, NULL);
@@ -88,7 +82,7 @@ void * test_listen() {
 	if (sd2 < 0) {
 		fprintf(stderr, "accept() error \n");
 		close(sd1);
-		return;
+
 	}
 
 	rc = recv(sd2, buffer, sizeof(buffer), 0);
@@ -97,7 +91,7 @@ void * test_listen() {
 		fprintf(stderr, "recv() error \n");
 		close(sd1);
 		close(sd2);
-		return;
+
 
 	}
 
@@ -109,7 +103,7 @@ void * test_listen() {
 		fprintf(stderr, "send() error \n");
 		close(sd1);
 		close(sd2);
-		return;
+
 	}
 
 	close(sd2);
@@ -129,29 +123,24 @@ void * test_client()
 
 	if (sockfd < 0) {
 		fprintf(stderr, "client - socket() error \n");
-		return;
 	}
 
 	memset(&addr, 0, sizeof(addr));
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(SERVER_PORT);
+	addr.sin_port = htons(LISTEN_SERVER_PORT);
 
 
 	rc = connect(sockfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
 	if (rc < 0) {
 		fprintf(stderr, "client - connect() error \n");
-		close(sockfd);
-		return;
 	}
 
 	len = send(sockfd, send_buf, strlen(send_buf) + 1, 0);
 
 	if (len != strlen(send_buf) + 1) {
 		fprintf(stderr, "client - send() error \n");
-		close(sockfd);
-		return;
 	}
 
 	fprintf(stdout, "%d bytes sent \n", len);
@@ -159,8 +148,6 @@ void * test_client()
 
 	if (len != strlen(send_buf) + 1) {
 		fprintf(stderr, "client - recv() error \n");
-		close(sockfd);
-		return;
 	}
 
 	fprintf(stdout, "server %s \n", recv_buf);

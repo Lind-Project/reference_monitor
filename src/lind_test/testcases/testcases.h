@@ -8,12 +8,19 @@
 #ifndef TEST_UGID_H_
 #define TEST_UGID_H_
 
-#define SERVER_ADDR     "173.194.121.34"
+
 
 /* connection port */
-#define PORT_TEST       80
+#define HTTP_TEST_PORT       80
+#define ACCEPT_SERVER_PORT 5001
+#define BIND_SERVER_PORT 5002
+#define SHDOWN_SERVER_PORT 5003
+#define LISTEN_SERVER_PORT 5004
+#define WRONG_PORT 10000000003
+#define WRONG_ADDRESS 10000000003
+#define SERVER_ADDR     "173.194.121.34"     /* Google server */
+#define SERVER_URL     "http://www.google.com"     /* Google server */
 
- /* Google server */
 #define MAXBUF          4096
 
 #define TRUE   1
@@ -63,7 +70,7 @@ void test_read(char *path);
 void test_write(char *path);
 void test_open(char *path);
 void test_close(char *path);
-void test_curl();
+void test_curl(char *url);
 void test_socket();
 void test_stat(char *path);
 void test_fstat(char *path);

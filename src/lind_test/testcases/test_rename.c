@@ -9,11 +9,12 @@
 
 int main(int argc, char **argv)
 {
-	char cwd [MAXBUF];
+	char cwd1 [MAXBUF];
+	char cwd2 [MAXBUF];
 	char *path = "/testfiles/test_read.txt";
 	char *renamed_path = "/testfiles/test_renamed.txt";
 
-	test_rename(strcat(getcwd(cwd, sizeof(cwd)), path), strcat(getcwd(cwd, sizeof(cwd)), renamed_path));
+	test_rename(strcat(getcwd(cwd1, sizeof(cwd1)), path), strcat(getcwd(cwd2, sizeof(cwd2)), renamed_path));
 	return 0;
 }
 
@@ -26,5 +27,5 @@ void test_rename(char *old_path, char *new_path)
 		return;
 	}
 
-	fprintf(stdout, "renamed the pat %s to %s \n ", old_path , new_path);
+	fprintf(stdout, "renamed (%s to %s) \n ", old_path , new_path);
 }

@@ -21,5 +21,6 @@ void test_unlink(char *dest) {
 			fprintf(stderr, " could not unlink %s \n", dest);
 			return;
 		}
-	fprintf(stderr, "unlinked %s \n", dest);
+
+	fprintf(stderr, "unlinked(%s) \n", dest);
 }

@@ -14,9 +14,11 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-/* https://support.sas.com/documentation/onlinedoc/sasc/doc750/html/lr2/zsockopt.htm */
 void test_getsockopt()
 {
+
+	/* takedn from https://support.sas.com/documentation/onlinedoc/sasc/doc750/html/lr2/zsockopt.htm */
+
 	int optlen, gs, socktype, s;
 
 	s = socket(AF_INET, SOCK_DGRAM, 0);
@@ -29,7 +31,7 @@ void test_getsockopt()
 	optlen = sizeof(socktype);
 	gs = getsockopt(s, SOL_SOCKET, SO_TYPE, &socktype, &optlen);
 	if (gs == -1) {
-		fprintf(stderr, "could not get sockopt \n");
+		fprintf(stderr, "getsockopt() error \n");
 		return;
 	}
 	switch (socktype) {

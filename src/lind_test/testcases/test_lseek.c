@@ -21,17 +21,17 @@ void test_lseek(char *path)
    long position;
 
    fd = open(path, O_RDONLY);
-   if (fd != -1)
-      {
+   if (fd != -1){
       position = lseek(fd, 0L, 2);  /* seek 0 bytes from end-of-file */
       if (position != -1)
          fprintf(stdout, "The length of datafile.dat is %ld bytes.\n", position);
       else
-         fprintf(stderr, "lseek error  \n");
+         fprintf(stderr, "lseek() error  \n");
       }
    else {
       fprintf(stderr, "can't read %s \n", path);
    }
-      close(fd);
+
+    close(fd);
 }
 

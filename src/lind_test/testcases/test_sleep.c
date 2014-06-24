@@ -23,7 +23,7 @@ void test_sleep(int sleep_time)
 	int ret = sleep(sleep_time);
 
 	if (ret == -1) {
-		fprintf(stderr, "Could not sleep \n");
+		fprintf(stderr, "sleep() error \n");
 	}
 	time(&end);
 
@@ -33,4 +33,5 @@ void test_sleep(int sleep_time)
 		fprintf(stderr, "Did not sleep correctly %f \n", delay);
 	}
 
+	fprintf(stdout, "sleep (%f)  \n", delay);
 }

@@ -15,9 +15,10 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-/* taken from http://man7.org/linux/man-pages/man2/stat.2.html */
+
 void test_fstat(char *path)
 {
+	/* taken from http://man7.org/linux/man-pages/man2/stat.2.html */
 	struct stat sb;
 	int fd = open(path, O_RDONLY);
 		if (fd < 0){

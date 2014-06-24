@@ -27,13 +27,12 @@ void test_dup2()
 	pipe(fds);
 
 	pid = fork();
-	if (pid == (pid_t) 0) {
+	if (pid ==  0) {
 		close(fds[1]);
-
 		/* Connect the read end of the pipe to standard input.  */
 		dup2(fds[0], STDIN_FILENO);
 		/* Replace the child process with the "sort" program.  */
-		execlp("sort", "sort", 0);
+		execlp("sort", "sort", NULL);
 	} else {
 		/* This is the parent process.  */
 		FILE* stream;
@@ -42,7 +41,7 @@ void test_dup2()
 		/* Convert the write file descriptor to a FILE object, and write
 		 to it.  */
 		stream = fdopen(fds[1], "w");
-		fprintf(stream, "This is a test.\n");
+		fprintf(stream, "This is a dup2() test.\n");
 		fflush(stream);
 		close(fds[1]);
 		/* Wait for the child process to finish.  */

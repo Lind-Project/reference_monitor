@@ -20,10 +20,12 @@ void test_open(char *path)
 	int fd;
 	fd = open(path, O_APPEND);
 	if (fd < 0){
-		fprintf(stderr, "Could not open %s \n", path);
+		fprintf(stderr, "open(%s) error \n", path);
 		return;
 	}
 
 	close(fd);
+
+	fprintf(stdout, "open(%s) successfully \n", path);
 }
 

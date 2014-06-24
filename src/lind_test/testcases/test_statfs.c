@@ -14,13 +14,15 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-/* taken from http://man7.org/linux/man-pages/man2/stat.2.html */
+
 void test_statfs(char *path)
 {
+	/* taken from http://man7.org/linux/man-pages/man2/stat.2.html */
 	struct statfs sb;
 	int ret;
+
 	if ((ret=statfs(path, &sb))  == -1) {
-		fprintf(stderr, "stat failed %s \n", path);
+		fprintf(stderr, "stat() failed %s \n", path);
 		return;
 	}
 

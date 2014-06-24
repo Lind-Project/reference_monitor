@@ -10,18 +10,18 @@
 
 int main (int argc, char **argv)
 {
-	test_curl();
+	test_curl(SERVER_URL);
 	return 0;
 }
 
-void test_curl()
+void test_curl(char * url)
 {
 	  CURL *curl;
 	  CURLcode res;
 
 	  curl = curl_easy_init();
 	  if(curl) {
-	    curl_easy_setopt(curl, CURLOPT_URL, "http://google.com");
+	    curl_easy_setopt(curl, CURLOPT_URL, url);
 
 	    /* http://google.com is redirected, so we tell libcurl to follow redirection */
 	    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);

@@ -15,9 +15,10 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-/* taken from http://man7.org/linux/man-pages/man2/stat.2.html */
 void test_stat(char *path)
 {
+	/* taken from http://man7.org/linux/man-pages/man2/stat.2.html */
+
 	struct stat sb;
 
 	if (stat(path, &sb) == -1) {

@@ -5,12 +5,7 @@
  *      Author:  Ali Gholami
  */
 
-/* taken from http://www.tenouk.com/Module41b.html */
-
-
 #include "testcases.h"
-
-#define SERVER_PORT 5001
 
 int main(int argc, char *argv[]) {
 
@@ -45,6 +40,7 @@ int main(int argc, char *argv[]) {
 
 void * test_accept()
 {
+	/* taken from http://www.tenouk.com/Module41b.html */
 	int sd1, sd2, rc;
 	struct sockaddr_in addr;
 
@@ -52,21 +48,21 @@ void * test_accept()
 
 	if (sd1 < 0) {
 		fprintf(stderr, "socket() error \n");
-		return;
+
 	}
 
 	memset(&addr, 0, sizeof(addr));
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(SERVER_PORT);
+	addr.sin_port = htons(ACCEPT_SERVER_PORT);
 
 	rc = bind(sd1, (struct sockaddr *) &addr, sizeof(addr));
 
 	if (rc < 0) {
 		fprintf(stderr, "bind() error \n");
 		close(sd1);
-		return;
+
 	}
 
 	rc = listen(sd1, 5);
@@ -74,7 +70,7 @@ void * test_accept()
 	if (rc < 0) {
 		fprintf(stderr, "listen() error \n");
 		close(sd1);
-		return;
+
 	}
 
 	sd2 = accept(sd1, NULL, NULL);
@@ -82,7 +78,7 @@ void * test_accept()
 	if (sd2 < 0) {
 		fprintf(stderr, "accept() error \n");
 		close(sd1);
-		return;
+
 	}
 
 	close(sd2);
@@ -91,7 +87,7 @@ void * test_accept()
 
 void *test_accept_client()
 {
-	int len, rc;
+	int rc;
 	int sockfd;
 	struct sockaddr_in addr;
 
@@ -100,23 +96,24 @@ void *test_accept_client()
 
 	if (sockfd < 0) {
 		fprintf(stderr, "client - socket() error \n");
-		return;
+
 	}
 
 	memset(&addr, 0, sizeof(addr));
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(SERVER_PORT);
+	addr.sin_port = htons(ACCEPT_SERVER_PORT);
 
 
 	rc = connect(sockfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
+
 	if (rc < 0) {
 		fprintf(stderr, "client - connect() error \n");
 		close(sockfd);
-		return;
+
 	}
 
-	fprintf(stdout, "connection accepted \n", len);
+	fprintf(stdout, "connection accepted \n");
 	close(sockfd);
 }

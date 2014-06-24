@@ -14,13 +14,12 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-/* https://support.sas.com/documentation/onlinedoc/sasc/doc700/html/lr2/zockname.htm */
-
 void test_getsockname()
 {
-	int s;
+	/* taken from  https://support.sas.com/documentation/onlinedoc/sasc/doc700/html/lr2/zockname.htm */
+	int s, sa_len;
 	struct sockaddr_in sa;
-	int sa_len;
+
 	sa_len = sizeof(sa);
 
 	s = socket(AF_INET, SOCK_DGRAM, 0);

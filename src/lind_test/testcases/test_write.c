@@ -29,7 +29,8 @@ void test_write(char *path)
 	fd = open(path, O_WRONLY);
 
 	if (fd < 0){
-		fprintf(stderr, "Could not open %s \n", path);
+		fprintf(stderr, "open(%s) error \n", path);
+		return;
 	}
 
 	bytes_written = write(fd, buf, nbytes);
@@ -38,7 +39,8 @@ void test_write(char *path)
 		fprintf(stderr, "write failed \n");
 		return;
 	}
-	fprintf(stdout, "--- write file finished \n");
+	fprintf(stdout, "\n");
+	fprintf(stdout, "--- write() finished \n");
 	close(fd);
 }
 

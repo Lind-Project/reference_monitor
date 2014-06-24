@@ -13,11 +13,9 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-
 void test_getegid()
 {
 	gid_t egid = getegid();
 	assert( egid == TEST_GETGID);
 	fprintf(stdout, "Current effective group id number is %d \n", egid);
 }
-
