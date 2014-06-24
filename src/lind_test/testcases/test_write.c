@@ -1,5 +1,5 @@
 /*
- * test_read.c
+ * test_write.c
  *
  *  Created on: Jun 10, 2014
  *      Author:  Ali Gholami
@@ -9,9 +9,9 @@
 
 int main(int argc, char **argv)
 {
-	char cwd[4096];
+	char cwd[MAXBUF];
 	char *path = strcat(getcwd(cwd, sizeof(cwd)),
-			"/testfiles/test_pread64.txt");
+			"/testfiles/test_write.txt");
 	test_write(path);
 	return 0;
 }
@@ -45,8 +45,6 @@ void test_write(char *path)
 		return;
 	}
 
-	fprintf(stdout, "\n");
-	fprintf(stdout, "--- write() finished \n");
+	fprintf(stdout, "\n--- write() finished \n");
 
 }
-

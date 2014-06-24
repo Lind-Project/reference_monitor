@@ -33,6 +33,7 @@ void test_socket()
 	dest.sin_port = htons(HTTP_TEST_PORT);
 	dest.sin_addr.s_addr = inet_addr(SERVER_ADDR);
 
+	int socket_flag = 0;
 
 	int ret;
 
@@ -41,7 +42,11 @@ void test_socket()
 		return;
 	}
 
+	socket_flag = 1;
+
 	while (1) {
+		if(!socket_flag)
+			break;
 		send(sockfd, "test\n", 5, 0);
 		fprintf(stdout, "message sent\n");
 		bzero(buffer, MAXBUF);

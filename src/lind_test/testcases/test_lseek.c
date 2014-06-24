@@ -1,5 +1,5 @@
 /*
- * test_chown.c
+ * test_lseek.c
  *
  *  Created on: Jun 23, 2014
  *      Author:  Ali Gholami
@@ -22,9 +22,9 @@ void test_lseek(char *path)
 
    fd = open(path, O_RDONLY);
    if (fd != -1){
-      position = lseek(fd, 0L, 2);  /* seek 0 bytes from end-of-file */
+      position = lseek(fd, 0L, 1);
       if (position != -1)
-         fprintf(stdout, "The length of datafile.dat is %ld bytes.\n", position);
+         fprintf(stdout, "The length of %s is %ld bytes.\n", path, position);
       else
          fprintf(stderr, "lseek() error  \n");
       }
@@ -35,6 +35,6 @@ void test_lseek(char *path)
    if (close(fd)!= 0){
   	       fprintf(stderr, "close() error \n");
   	   	   return;
-  		}
+  	}
 }
 

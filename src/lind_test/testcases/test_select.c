@@ -1,5 +1,5 @@
 /*
- * test_access.c
+ * test_select.c
  *
  *  Created on: Jun 23, 2014
  *      Author:  Ali Gholami

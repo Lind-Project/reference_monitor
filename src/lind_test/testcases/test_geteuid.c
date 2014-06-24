@@ -1,5 +1,5 @@
 /*
- * test_uid.c
+ * test_geteuid.c
  *
  *  Created on: Jun 23, 2014
  *      Author:  Ali Gholami

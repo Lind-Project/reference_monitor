@@ -1,5 +1,5 @@
 /*
- * test_socket.c
+ * test_getsockopt.c
  *
  *  Created on: Jun 20, 2014
  *      Author:  Ali Gholami

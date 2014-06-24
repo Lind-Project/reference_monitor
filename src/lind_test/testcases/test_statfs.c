@@ -1,5 +1,5 @@
 /*
- * test_chown.c
+ * test_statfs.c
  *
  *  Created on: Jun 20, 2014
  *      Author:  Ali Gholami

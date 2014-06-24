@@ -9,7 +9,6 @@
 #define TEST_UGID_H_
 
 
-
 /* connection port */
 #define HTTP_TEST_PORT       80
 #define ACCEPT_SERVER_PORT 5001
@@ -54,6 +53,8 @@
 #include <sys/wait.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <dirent.h>
+#include <sys/syscall.h>
 
 void test_getuid();
 void test_getgid();
@@ -98,6 +99,9 @@ void test_creat();
 void test_dup();
 void test_dup2();
 void test_readp64(char *path);
-void test_writev(char *path);
-
+void test_pwritev(char *path);
+void test_getdents(char *path);
+void test_socketpair();
+void test_setsockopt();
+void test_setgroups();
 #endif /* TEST_UGID_H_ */

@@ -1,5 +1,5 @@
 /*
- * test_chown.c
+ * test_exit.c
  *
  *  Created on: Jun 23, 2014
  *      Author:  Ali Gholami

@@ -1,5 +1,5 @@
 /*
- * test_access.c
+ * test_accept.c
  *
  *  Created on: Jun 20, 2014
  *      Author:  Ali Gholami

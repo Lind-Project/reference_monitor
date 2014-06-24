@@ -1,5 +1,5 @@
 /*
- * test_gid.c
+ * test_getegid.c
  *
  *  Created on: Jun 23, 2014
  *      Author:  Ali Gholami

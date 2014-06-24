@@ -1,5 +1,5 @@
 /*
- * test_chown.c
+ * test_fstat.c
  *
  *  Created on: Jun 18, 2014
  *      Author:  Ali Gholami
@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	char cwd[4096];
+	char cwd[MAXBUF];
 	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_read.txt");
 	test_fstat(path);
 	return 0;

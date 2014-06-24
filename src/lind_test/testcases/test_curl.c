@@ -1,5 +1,5 @@
 /*
- * test_socket.c
+ * test_curl.c
  *
  *  Created on: Jun 6, 2014
  *      Author:  Ali Gholami

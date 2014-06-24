@@ -1,5 +1,5 @@
 /*
- * test_chown.c
+ * test_open.c
  *
  *  Created on: Jun 11, 2014
  *      Author:  Ali Gholami

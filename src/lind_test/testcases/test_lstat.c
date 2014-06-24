@@ -1,5 +1,5 @@
 /*
- * test_chown.c
+ * test_lstat.c
  *
  *  Created on: Jun 19, 2014
  *      Author:  Ali Gholami

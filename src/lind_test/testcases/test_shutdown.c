@@ -1,5 +1,5 @@
 /*
- * test_chown.c
+ * test_shutdown.c
  *
  *  Created on: Jun 19, 2014
  *      Author:  Ali Gholami
@@ -22,6 +22,7 @@ void test_shutdown()
 	/*---Open socket for streaming---*/
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		fprintf(stderr, "Socket error %d \n", sockfd);
+		return;
 	}
 
 
