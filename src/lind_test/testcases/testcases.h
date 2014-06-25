@@ -10,14 +10,17 @@
 
 
 /* connection port */
+#define LOCAL_SERVER "127.0.0.1"
+
+#define FTP_TEST_PORT        21
 #define HTTP_TEST_PORT       80
-#define ACCEPT_SERVER_PORT 5001
-#define BIND_SERVER_PORT 5002
-#define SHDOWN_SERVER_PORT 5003
-#define LISTEN_SERVER_PORT 5004
+#define ACCEPT_SERVER_PORT 13001
+#define BIND_SERVER_PORT 13002
+#define SHDOWN_SERVER_PORT 13003
+#define LISTEN_SERVER_PORT 13004
 #define WRONG_PORT 10000000003
 #define WRONG_ADDRESS 10000000003
-#define SERVER_ADDR     "173.194.121.34"     /* Google server */
+#define SERVER_ADDR     "128.122.119.209"     /* NYU server */
 #define SERVER_URL     "http://www.google.com"     /* Google server */
 
 #define MAXBUF          4096
@@ -59,6 +62,11 @@
 #include <sys/syscall.h>
 #include <grp.h>
 #include <netinet/tcp.h>
+#include <sys/file.h>
+#include <sys/ioctl.h>
+#include <scsi/sg.h>
+#include <resolv.h>
+#include <poll.h>
 
 void test_getuid();
 void test_getgid();
@@ -89,8 +97,6 @@ void *test_accept_client();
 void test_bind();
 void test_select(char *src, char *dest);
 void test_lseek(char *path);
-void test_send();
-void test_recv();
 void test_link(char *src, char * dest);
 void test_unlink(char *dest);
 void test_exit();
@@ -109,4 +115,14 @@ void test_socketpair();
 void *test_setsockopt();
 void test_setgroups();
 void test_exit_group();
+void test_fcntl(char *path);
+void test_flock(char *path);
+void test_ioctl(char *path);
+void test_poll(char *path1, char *path2);
+void test_sendto();
+void test_recvfrom();
+void test_sendmsg();
+void test_recvmsg();
+
+
 #endif /* TEST_UGID_H_ */

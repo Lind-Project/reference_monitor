@@ -24,5 +24,5 @@ void test_getpid()
 
   assert(getpid() == pid);
 
-  fprintf(stdout, "Current effective user id number is: %d \n", pid);
+  fprintf(stdout, "Current process id number is: %d \n", pid);
 }

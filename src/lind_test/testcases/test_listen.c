@@ -51,7 +51,6 @@ void * test_listen() {
 
 	if (sd1 < 0) {
 		fprintf(stderr, "socket() error \n");
-
 	}
 
 	/* Bind the socket */
@@ -91,8 +90,6 @@ void * test_listen() {
 		fprintf(stderr, "recv() error \n");
 		close(sd1);
 		close(sd2);
-
-
 	}
 
 	len = rc;
@@ -106,9 +103,13 @@ void * test_listen() {
 
 	}
 
-	close(sd2);
-	close(sd1);
+	if (close(sd1) != 0){
+			fprintf(stderr, "close() error \n");
+		}
 
+	if (close(sd2) != 0){
+			fprintf(stderr, "close() error \n");
+		}
 }
 
 void * test_client()
@@ -154,7 +155,7 @@ void * test_client()
 	fprintf(stdout, "server %s \n", recv_buf);
 	fprintf(stdout, "%d bytes received \n", len);
 
-	 if (close(sockfd)!= 0){
-		       fprintf(stderr, "close() error \n");
-		}
+	if (close(sockfd)!= 0){
+		fprintf(stderr, "close() error \n");
+	}
 }

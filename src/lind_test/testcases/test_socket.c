@@ -25,7 +25,8 @@ void test_socket()
 	int counter = 0;
 
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		fprintf(stderr, "socket() error %d \n", sockfd);
+		fprintf(stderr, "socket() error %d.\n", sockfd);
+
 	}
 
 	bzero(&dest, sizeof(dest));
@@ -38,7 +39,7 @@ void test_socket()
 	int ret;
 
 	if ((ret = connect(sockfd, (struct sockaddr*) &dest, sizeof(dest))) != 0) {
-		fprintf(stderr, "connect() error %d  \n", ret);
+		fprintf(stderr, "connect() error.  check the server IP address %s  \n", SERVER_ADDR);
 		return;
 	}
 
