@@ -20,7 +20,7 @@ void test_exit()
 	pid = fork ();
 
 	if (pid < 0){
-		fprintf(stderr, "coud not create a proccess \n");
+		fprintf(stderr, "could not create a proccess \n");
 		return;
 	}
 

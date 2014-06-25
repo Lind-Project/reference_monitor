@@ -57,5 +57,4 @@ void test_getsockopt()
 	       fprintf(stderr, "close() error \n");
 	   	   return;
 	}
-
 }

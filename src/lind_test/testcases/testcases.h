@@ -25,6 +25,8 @@
 #define TRUE   1
 #define FALSE  0
 
+#define ROOT_GROUP 	0
+
 #define TEST_GETUID 1000
 #define TEST_GETGID 1000
 #define TEST_GETPID 1000
@@ -55,6 +57,8 @@
 #include <pthread.h>
 #include <dirent.h>
 #include <sys/syscall.h>
+#include <grp.h>
+#include <netinet/tcp.h>
 
 void test_getuid();
 void test_getgid();
@@ -102,6 +106,7 @@ void test_readp64(char *path);
 void test_pwritev(char *path);
 void test_getdents(char *path);
 void test_socketpair();
-void test_setsockopt();
+void *test_setsockopt();
 void test_setgroups();
+void test_exit_group();
 #endif /* TEST_UGID_H_ */
