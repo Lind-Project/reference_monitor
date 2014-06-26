@@ -4,7 +4,6 @@
  *  Created on: Jul 23, 2013
  *      Author: sji
  */
-
 #include <Python.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -16,8 +15,6 @@ PyObject* code = NULL;
 PyObject* context = NULL;
 
 static int initialized = 0;
-
-
 
 #define UNREFERENCED_PARAMETER(x) do {(void)(x);} while(0)
 

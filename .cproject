@@ -31,11 +31,11 @@
 									<listOptionValue builtIn="false" value="/usr/include"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.283815294" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 `python-config --includes` --std=gnu99" valueType="string"/>
-								<option id="gnu.c.compiler.option.include.files.845759290" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" valueType="includeFiles"/>
+								<option id="gnu.c.compiler.option.include.files.845759290" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.617110426" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}${FLAGS}" id="cdt.managedbuild.tool.gnu.c.linker.exe.release.350584836" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release">
-								<option id="gnu.c.link.option.paths.1996385002" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths"/>
+								<option id="gnu.c.link.option.paths.1996385002" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
 								<option id="gnu.c.link.option.ldflags.964282378" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="`python-config --libs`" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1263341761" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

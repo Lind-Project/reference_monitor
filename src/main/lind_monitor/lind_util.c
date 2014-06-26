@@ -43,7 +43,7 @@ char *get_substring(char *string, int position, int length) {
 
 char *get_lind_config(){
 	char* cfgDir[LIND_PATH_MAX];
-	char* appendStr = "/configs/monitor.cfg";
+	char* appendStr = "/src/main/lind_monitor/configs/monitor.cfg";
 	getcwd(cfgDir, LIND_PATH_MAX);
 	strcat(cfgDir, appendStr);
 	return cfgDir;

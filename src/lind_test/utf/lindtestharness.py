@@ -27,7 +27,7 @@ import subprocess
 
 CUR_DIR = os.getcwd()
 TESTDIRECTORY =  CUR_DIR + '/testingdir/'
-REFERENCEFSDIRECTORY = '/usr/ali/repy/repy/'
+REFERENCEFSDIRECTORY = '/referencedir/'
 EXEC_DIR = CUR_DIR + '/build/testcases/'
 
 def remove_existing_lindfs():
