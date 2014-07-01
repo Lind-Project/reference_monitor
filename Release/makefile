@@ -24,19 +24,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: monitor
+all: reference_monitor
 
 # Tool invocations
-monitor: $(OBJS) $(USER_OBJS)
+reference_monitor: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc `python-config --libs` -o "monitor" $(OBJS) $(USER_OBJS) $(LIBS)`python-config --libs`
+	gcc `python-config --libs` -o "reference_monitor" $(OBJS) $(USER_OBJS) $(LIBS)`python-config --libs`
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) monitor
+	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) reference_monitor
 	-@echo ' '
 
 .PHONY: all clean dependents

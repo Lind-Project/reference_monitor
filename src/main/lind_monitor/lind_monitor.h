@@ -1,8 +1,8 @@
 /*
- * monitor.h
+ * lind_monitor.h
  *
  *  Created on: April 17, 2014
- *      Author:  Ali Gholami, Shengqian Ji
+ *      Author: Ali Gholami, Shengqian Ji
  */
 
 #include <unistd.h>

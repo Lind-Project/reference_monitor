@@ -21,8 +21,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
-/*  */
-#define REPY_RELPATH "/usr/lind/repy/repy"
+
+#define REPY_RELPATH "/usr/repy/repy"
 
 #include "lind_stat.h"
 
