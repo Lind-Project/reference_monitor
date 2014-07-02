@@ -10,10 +10,8 @@
 int main(int argc, char **argv)
 {
 
-	char cwd1[MAXBUF];
-	char cwd2[MAXBUF];
-	char *src = strcat(getcwd(cwd1, sizeof(cwd1)), "/testfiles/test_link.txt");
-	char *dest =  strcat(getcwd(cwd2, sizeof(cwd2)), "/testfiles/test_ulink.txt");
+	char *src = strcat(get_testfiles_dir(),"/test_link.txt");
+	char *dest = strcat(get_testfiles_dir(),"/test_ulink.txt");
 	test_link(src, dest);
 	return 0;
 }

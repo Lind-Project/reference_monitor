@@ -9,8 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	char cwd [4096];
-	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_read.txt");
+	char *path = strcat(get_testfiles_dir(),"/test_read.txt");
 	test_read(path);
 	return 0;
 }

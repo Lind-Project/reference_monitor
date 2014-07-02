@@ -37,7 +37,7 @@ void init_ptrace(int argc, char** argv)
 
 	/* check if fork was successful */
 	if (tracee < 0) {
-		fprintf(stderr, "No process could be initialized. \n");
+		fprintf(stderr, "No process could be monitored. \n");
 		exit(-1);
 	}
 
@@ -49,19 +49,18 @@ void init_ptrace(int argc, char** argv)
 		/* stop the current process*/
 		kill(getpid(), SIGSTOP);
 
-		/* the binary or command to be executed */
-		int ret_stat = execve(argv[0], argv, NULL);
-		if (ret_stat < 0) {
-			fprintf(stderr, "execlp: \n");
+		char** target_program_argv = argv + 1;
+	    execvp(target_program_argv[0], target_program_argv);
+	    fprintf(stderr, "execvp() error \n");
+		exit(1);
 		}
-	}
 }
 
 /* intercept the system calls issued by the tracee process */
 void intercept_calls()
 {
 	int entering = 1;
-	int status, syscall_num, ret_val;
+	int status = -1, syscall_num = -1;
 	char *path;
 	char *path1;
 	char *var;
@@ -87,7 +86,7 @@ void intercept_calls()
 			break;
 
 		if (!WIFSTOPPED(status)) {
-			fprintf(stderr, "wait(&status) \n");
+			fprintf(stderr, "wait(&status)=%d\n", status);
 			exit(0);
 		}
 
@@ -146,15 +145,15 @@ void intercept_calls()
 						break;
 
 					case __NR_mmap:
-						fprintf(stdout, "mmap() =  0x%jx \n", regs.retval);
+						fprintf(stdout, "mmap()=0x%jx \n", regs.retval);
 						break;
 
 					case __NR_brk:
-						fprintf(stdout, "brk() =  0x%jx \n", regs.retval);
+						fprintf(stdout, "brk()=0x%jx \n", regs.retval);
 						break;
 
 					default:
-						fprintf(stdout, "%s() =  %ld \n",
+						fprintf(stdout, "%s()=%ld \n",
 								syscall_names[syscall_num], regs.retval);
 						break;
 					} /* switch*/
@@ -652,7 +651,7 @@ char *get_path(long addr)
 /* set the memory from an address to a specific buffer */
 void set_mem(long addr, void * buff, size_t count)
 {
-	long ret;
+	long ret = -1;
 	int i;
 
 	int fullblocks = count / sizeof(long);
@@ -745,11 +744,11 @@ int load_config()
 	char *str, buff[100];
 	char *key, *value;
 	enum monitor_action mact = ALLOW_LIND;
+	const char * config_file = get_lind_config();
 
-	FILE *fp = fopen(CONFIG_FILE, "r");
-
+	FILE *fp = fopen(config_file, "r");
 	if (fp == NULL) {
-		fprintf(stdout, "Config file %s could not be opened. \n ", CONFIG_FILE);
+		fprintf(stdout, "Config file %s could not be opened. \n ", config_file);
 		exit(-1);
 	}
 

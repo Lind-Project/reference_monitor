@@ -8,8 +8,8 @@
 #include "testcases.h"
 
 int main() {
-	char cwd [MAXBUF];
-	char *path = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/test_creat.txt");
+
+	char *path = strcat(get_testfiles_dir(),"/test_creat.txt");
 	test_creat(path);
 	return 0;
 }

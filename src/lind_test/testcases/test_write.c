@@ -9,9 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	char cwd[MAXBUF];
-	char *path = strcat(getcwd(cwd, sizeof(cwd)),
-			"/testfiles/test_write.txt");
+	char *path = strcat(get_testfiles_dir(),"/test_write.txt");
 	test_write(path);
 	return 0;
 }

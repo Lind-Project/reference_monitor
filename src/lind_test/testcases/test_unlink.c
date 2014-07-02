@@ -9,9 +9,9 @@
 #include "testcases.h"
 
 int main(int argc, char **argv) {
-	char cwd[MAXBUF];
-	char *dest = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_unlink.txt");
-	test_unlink(dest);
+
+	char *path = strcat(get_testfiles_dir(),"/test_unlink.txt");
+	test_unlink(path);
 	return 0;
 }
 

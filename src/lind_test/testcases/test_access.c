@@ -7,10 +7,10 @@
 
 #include "testcases.h"
 
+
 int main(int argc, char **argv)
 {
-	char cwd [MAXBUF];
-	char *path = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_access.txt");
+	char *path = strcat(get_testfiles_dir(),"/test_access.txt");
 	test_access(path);
 	return 0;
 }

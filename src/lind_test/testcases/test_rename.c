@@ -9,10 +9,8 @@
 
 int main(int argc, char **argv)
 {
-	char cwd1 [MAXBUF];
-	char cwd2 [MAXBUF];
-	char *path = strcat(getcwd(cwd1, sizeof(cwd1)),"/testfiles/test_rename.txt");
-	char *renamed_path = strcat(getcwd(cwd2, sizeof(cwd2)),"/testfiles/test_renamed.txt");
+	char *path = strcat(get_testfiles_dir(),"/test_rename.txt");
+	char *renamed_path = strcat(get_testfiles_dir(),"/test_renamed.txt");
 
 	test_rename(path, renamed_path);
 	return 0;

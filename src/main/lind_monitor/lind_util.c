@@ -7,7 +7,6 @@
 
 #include "lind_util.h"
 
-
 char *trim(char * str)
 {
 	char *s1 = str, *s2 = &str[strlen(str) - 1];
@@ -44,26 +43,23 @@ char *get_substring(char *string, int position, int length)
 	return pointer;
 }
 
-char *get_lind_config()
+const char *get_lind_config()
 {
-
-
 
 	const char *name = "LIND_MONITOR";
 	const char *appendStr = "/src/main/lind_monitor/configs/monitor.cfg";
 
-	const char *path = getenv(name);
+	char *path = getenv(name);
 
 	if (path == NULL) {
 		fprintf(stderr, "Could not load the Lind config file %s. \n", path);
 		exit(-1);
 	}
 
-	char *monitor_home = malloc(strlen(path) + strlen(appendStr));
+	char *monitor_home = (char *) malloc ((strlen (path) + strlen(appendStr) +1) * sizeof(char));
 
 	strcpy(monitor_home, path);
-	strcpy(monitor_home, appendStr);
+	strcat(monitor_home, appendStr);
 
-	fprintf(stdout, "final path %s", monitor_home);
 	return monitor_home;
 }

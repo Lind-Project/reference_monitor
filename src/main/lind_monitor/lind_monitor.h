@@ -23,8 +23,6 @@
 
 #ifdef __x86_64__
 
-#define CONFIG_FILE get_lind_config()
-
 #define SIZE(a) (int)(sizeof(a)/sizeof(a[0]))
 #define LIND_PATH_MAX 4096
 

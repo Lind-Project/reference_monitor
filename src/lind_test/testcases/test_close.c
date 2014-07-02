@@ -10,8 +10,8 @@
 
 int main(int argc, char **argv)
 {
-	char cwd [MAXBUF];
-	char *path = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/test_read.txt");
+
+	char *path = strcat(get_testfiles_dir(),"/test_read.txt");
 	test_close(path);
 	return 0;
 }

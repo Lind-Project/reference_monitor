@@ -17,4 +17,4 @@
 
 char *trim(char * str);
 char *get_substring(char *string, int position, int length);
-char *get_lind_config();
+const char *get_lind_config();

@@ -36,7 +36,7 @@
 #define TEST_GETGID 1000
 #define TEST_GETPID 1000
 
-
+//#include "../../../src/main/lind_monitor/lind_util.h"
 #include <limits.h>
 #include <signal.h>
 #include <sys/statfs.h>
@@ -129,5 +129,30 @@ void *test_sendto();
 void *test_recvfrom();
 void *test_sendmsg();
 void *test_recvmsg();
+
+
+const char *get_testfiles_dir()
+{
+
+	const char *name = "LIND_MONITOR";
+	const char *appendStr = "/src/lind_test/utf/testfiles";
+
+	char *path = getenv(name);
+
+	if (path == NULL) {
+		fprintf(stderr, "Could not load the Lind config file %s. \n", path);
+		exit(-1);
+	}
+
+	char *monitor_home = (char *) malloc ((strlen (path) + strlen(appendStr) +1) * sizeof(char));
+
+	strcpy(monitor_home, path);
+	strcat(monitor_home, appendStr);
+
+	fprintf(stdout, "final path %s\n", monitor_home);
+
+	return monitor_home;
+}
+
 
 #endif /* TEST_UGID_H_ */

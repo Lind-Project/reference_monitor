@@ -61,18 +61,30 @@ int LindPythonInit(void) {
 	Py_InitializeEx(0);
 	PySys_SetArgvEx(1, argv, 0);
 
+	const char* repy_path = get_repy_path();
+	const char *rest_lind = "restrictions.lind";
+	char *repy_rest_path = (char *) malloc ((strlen (repy_path) + strlen(rest_lind) +1) * sizeof(char));
+	strcpy(repy_rest_path, repy_path);
+	strcat(repy_rest_path, rest_lind);
+
+
 	path = PySys_GetObject("path");
 	GOTO_ERROR_IF_NULL(path);
-	PyList_Append(path, PyString_FromString(REPY_RELPATH));
+	PyList_Append(path, PyString_FromString(repy_path));
 
 	repylib_name = PyString_FromString("repylib");
 	repylib = PyImport_Import(repylib_name);
 	GOTO_ERROR_IF_NULL(repylib);
 	repy_main_func = PyObject_GetAttrString(repylib, "repy_main");
 	GOTO_ERROR_IF_NULL(repy_main_func);
-	repy_main_args = Py_BuildValue("([sssss])", "lind", "--safebinary",
-			REPY_RELPATH"restrictions.lind", REPY_RELPATH"lind_server.py",
-			"./dummy.nexe");
+
+	const char *lind_server = "lind_server.py";
+	char *lind_serv_path = (char *) malloc((strlen(repy_path) + strlen(lind_server)+1) * sizeof(char));
+	strcpy(lind_serv_path, repy_path);
+	strcat(lind_serv_path, rest_lind);
+
+	repy_main_args = Py_BuildValue("([sssss])", "lind", "--safebinary", repy_rest_path, lind_serv_path, "./dummy.nexe");
+
 	result = PyObject_CallObject(repy_main_func, repy_main_args);
 	GOTO_ERROR_IF_NULL(result);
 	PyOS_AfterFork();
@@ -85,6 +97,11 @@ int LindPythonInit(void) {
 	error: initialized = 0;
 	PyErr_Print();
 	PyEval_ReleaseLock();
+
+
+	free(repy_rest_path);
+	free(lind_serv_path);
+
 	return 0;
 }
 
@@ -793,4 +810,25 @@ int get_mapping(int fd){
 	Py_XDECREF(result);
 
 	return retval;
+}
+
+const char *get_repy_path()
+{
+
+	const char *name = "REPY_PATH";
+	const char *rel_path = "/repy/";
+
+	char *path = getenv(name);
+
+	if (path == NULL) {
+		fprintf(stderr, "Could not read %s. \n", path);
+		exit(-1);
+	}
+
+	char *monitor_home = (char *) malloc((strlen(path) + strlen(rel_path) +1) * sizeof(char));
+
+	strcpy(monitor_home, path);
+	strcat(monitor_home, rel_path);
+
+	return monitor_home;
 }

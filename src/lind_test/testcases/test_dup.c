@@ -9,8 +9,8 @@
 
 int main()
 {
-	char cwd[MAXBUF];
-	char *path = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/test_read.txt");
+
+	char *path = strcat(get_testfiles_dir(),"/test_read.txt");
 	test_dup(path);
 
 	return 0;

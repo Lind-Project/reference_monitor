@@ -22,8 +22,6 @@
 #include <stdint.h>
 
 
-#define REPY_RELPATH "/usr/repy/repy"
-
 #include "lind_stat.h"
 
 #define LIND_debug_noop                 1
@@ -142,5 +140,6 @@ int lind_epoll_ctl(int epfd, int op, int fd, struct lind_epoll_event *event);
 int lind_epoll_wait(int epfd, struct lind_epoll_event *events, int maxevents, int timeout);
 void add_mapping(int src, int dest);
 int get_mapping(int fd);
+const char *get_repy_path();
 
 #endif /* LIND_PLATFORM_H_ */

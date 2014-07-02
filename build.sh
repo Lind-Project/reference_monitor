@@ -1,8 +1,10 @@
 #!/bin/bash
-  
-MAKE_FILE=./Release/
 
+
+MAKEFILE_DIR=./Release/
+TESTCASES_DIR=./src/lind_test/
 GEN_SYSCALLS=./src/main/lind_monitor/configs/syscall_generator
+
 
 if [ -z "$GEN_SYSCALLS" ]; then
    echo "No syscall generator found"
@@ -10,7 +12,7 @@ if [ -z "$GEN_SYSCALLS" ]; then
 fi
 
 
-if [ -z "$MAKE_FILE" ]; then
+if [ -z "$MAKEFILE_DIR" ]; then
    echo "No make file found"
    exit 1
 fi
@@ -18,7 +20,11 @@ fi
 
 $GEN_SYSCALLS > ./src/main/lind_monitor/configs/syscalls.h
 
-cd $MAKE_FILE
+cd $TESTCASES_DIR
+make clean
+make
+
+cd $MAKEFILE_DIR
 
 make clean
 make

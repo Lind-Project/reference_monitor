@@ -15,9 +15,8 @@ int max(int lhs, int rhs) {
 }
 
 int main(int argc, char **argv) {
-	char cwd[MAXBUF];
-	char *src = strcat(getcwd(cwd, sizeof(cwd)),"/testfiles/test_read.txt");
-	char *dest = strcat(getcwd(cwd, sizeof(cwd)), "/testfiles/test_write.txt");
+	char *src = strcat(get_testfiles_dir(),"/test_read.txt");
+	char *dest = strcat(get_testfiles_dir(),"/test_write.txt");
 	test_select(src, dest);
 	return 0;
 }

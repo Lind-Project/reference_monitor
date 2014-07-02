@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	char *path = "/etc";
+	char *path = get_testfiles_dir();
 	test_statfs(path);
 	return 0;
 }
