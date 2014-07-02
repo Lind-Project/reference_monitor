@@ -49,11 +49,11 @@ void init_ptrace(int argc, char** argv)
 		/* stop the current process*/
 		kill(getpid(), SIGSTOP);
 
-		char** tracee = argv + 1;
-	    execve(tracee[0], tracee, NULL);
-	    fprintf(stderr, "execvp() error \n");
+		extern char **environ;
+		execve(argv[1], argv, environ);
+		fprintf(stderr, "Unknown command %s\n", argv[1]);
 		exit(1);
-		}
+	}
 }
 
 /* intercept the system calls issued by the tracee process */
@@ -145,7 +145,7 @@ void intercept_calls()
 						break;
 
 					case __NR_mmap:
-						fprintf(stdout, "mmap()=0x%jx \n", regs.retval);
+							fprintf(stdout, "mmap()=0x%jx \n", regs.retval);
 						break;
 
 					case __NR_brk:
@@ -609,7 +609,6 @@ void intercept_calls()
 					}
 						fprintf(stdout, "epoll_wait(%ld) = %lu \n", regs.arg1,
 								regs.retval);
-
 						break;
 
 					default:

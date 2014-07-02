@@ -63,9 +63,7 @@ int LindPythonInit(void) {
 
 	const char* repy_path = get_repy_path();
 	const char *rest_lind = "restrictions.lind";
-	char *repy_rest_path;
-
-	repy_rest_path = (char *) malloc ((strlen (repy_path) + strlen(rest_lind) +1) * sizeof(char));
+	char *repy_rest_path = malloc ((strlen (repy_path) + strlen(rest_lind) +1) * sizeof(char));
 	strcpy(repy_rest_path, repy_path);
 	strcat(repy_rest_path, rest_lind);
 
@@ -81,12 +79,11 @@ int LindPythonInit(void) {
 	GOTO_ERROR_IF_NULL(repy_main_func);
 
 	const char *lind_server = "lind_server.py";
-	char *lind_serv_path;
-	lind_serv_path = (char *) malloc((strlen(repy_path) + strlen(lind_server)+1) * sizeof(char));
+	char *lind_serv_path = malloc((strlen(repy_path) + strlen(lind_server)+1) * sizeof(char));
 	strcpy(lind_serv_path, repy_path);
-	strcat(lind_serv_path, rest_lind);
-
+	strcat(lind_serv_path, lind_server);
 	repy_main_args = Py_BuildValue("([sssss])", "lind", "--safebinary", repy_rest_path, lind_serv_path, "./dummy.nexe");
+
 
 	result = PyObject_CallObject(repy_main_func, repy_main_args);
 	GOTO_ERROR_IF_NULL(result);
@@ -100,10 +97,6 @@ int LindPythonInit(void) {
 	error: initialized = 0;
 	PyErr_Print();
 	PyEval_ReleaseLock();
-
-
-	free(repy_rest_path);
-	free(lind_serv_path);
 
 	return 0;
 }
