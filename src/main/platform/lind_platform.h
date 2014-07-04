@@ -2,9 +2,7 @@
  * lind_platform.h
  *
  *  Created on: Jul 23, 2013
- *      Author: sji
- *
- *      These values are according to /lind_glibc/sysdeps/nacl/lind_syscalls.h constants.
+ *      Author: sji, Ali Gholami
  */
 
 #ifndef LIND_PLATFORM_H_
@@ -21,8 +19,9 @@
 #include <unistd.h>
 #include <stdint.h>
 
-
 #include "lind_stat.h"
+
+ /* These values are according to /lind_glibc/sysdeps/nacl/lind_syscalls.h constants. */
 
 #define LIND_debug_noop                 1
 #define LIND_safe_fs_access             2

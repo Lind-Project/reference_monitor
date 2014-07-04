@@ -7,9 +7,17 @@
 
 #include "testcases.h"
 
+
+void test_invalid_access(){
+	struct stat statbuf;
+	assert(fstat (-1, &statbuf) == -1);
+}
+
+
 int main(int argc, char **argv)
 {
 	char *path = strcat(get_testfiles_dir(),"/test_read.txt");
+	test_invalid_access();
 	test_fstat(path);
 	return 0;
 }
@@ -82,5 +90,5 @@ void test_fstat(char *path)
 	if (close(fd)!= 0){
 		       fprintf(stderr, "close() error \n");
 	   	   return;
-		}
+	}
 }

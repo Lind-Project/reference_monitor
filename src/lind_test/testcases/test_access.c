@@ -7,7 +7,6 @@
 
 #include "testcases.h"
 
-
 int main(int argc, char **argv)
 {
 	char *path = strcat(get_testfiles_dir(),"/test_access.txt");
@@ -45,5 +44,6 @@ void test_access(char *path)
 		 fprintf (stderr, "%s is not writable (access denied)\n", path);
 	 else if (errno == EROFS)
 		 fprintf (stderr, "%s is not writable (read-only filesystem)\n", path);
+
 
 }

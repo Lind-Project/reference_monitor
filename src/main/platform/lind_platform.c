@@ -2,7 +2,7 @@
  * lind_platform.c
  *
  *  Created on: Jul 23, 2013
- *      Author: sji
+ *      Author: sji, Ali Gholami
  */
 #include <Python.h>
 #include <errno.h>
@@ -86,6 +86,9 @@ int LindPythonInit(void) {
 
 
 	result = PyObject_CallObject(repy_main_func, repy_main_args);
+
+	free(repy_rest_path);
+	free(lind_serv_path);
 	GOTO_ERROR_IF_NULL(result);
 	PyOS_AfterFork();
 	PyArg_ParseTuple(result, "OO", &code, &context);
@@ -747,6 +750,7 @@ int lind_epoll_create(int size) {
 	UNREFERENCED_PARAMETER(size);
 	return 0;
 }
+
 int lind_epoll_ctl(int epfd, int op, int fd, struct lind_epoll_event *event) {
 	UNREFERENCED_PARAMETER(epfd);
 	UNREFERENCED_PARAMETER(op);
@@ -754,6 +758,7 @@ int lind_epoll_ctl(int epfd, int op, int fd, struct lind_epoll_event *event) {
 	UNREFERENCED_PARAMETER(event);
 	return 0;
 }
+
 int lind_epoll_wait(int epfd, struct lind_epoll_event *events, int maxevents,
 		int timeout) {
 	UNREFERENCED_PARAMETER(epfd);
@@ -773,12 +778,20 @@ int lind_fcntl(int fd, int cmd, ...) {
 void add_mapping(int src, int dest){
 	PyObject* args = NULL;
 	PyObject* result = NULL;
+
+	if (src < 0 || dest < 0) {
+		return;
+	}
+
 	args = Py_BuildValue("(ii)", src, dest);
 	result = CallPythonFunc(context, "map_native_to_lind", args);
 
-	if (result==NULL){
-		fprintf(stderr, "Error while building the arguments\n");
+	if (result == NULL){
+		fprintf(stderr, "Error while building the arguments src: %d  dest: %d\n", src, dest);
+	}else {
+		fprintf(stderr, "Building the arguments src: %d  dest: %d\n", src, dest);
 	}
+
 	Py_XDECREF(args);
 	Py_XDECREF(result);
 }
@@ -792,8 +805,8 @@ int get_mapping(int fd){
 
 	result = CallPythonFunc(context, "map_lind_to_native", args);
 
-	if (result==NULL){
-		fprintf(stderr, "No mapping found in Lind. \n");
+	if (result == NULL){
+		fprintf(stderr, "No mapping found in Lind for fd %d \n", fd);
 	}
 
 	if (!PyInt_Check(result)){
@@ -810,7 +823,6 @@ int get_mapping(int fd){
 
 const char *get_repy_path()
 {
-
 	const char *name = "REPY_PATH";
 	const char *rel_path = "/repy/";
 
