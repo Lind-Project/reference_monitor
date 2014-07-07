@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	char *path = strcat(get_testfiles_dir(),"/test_read.txt");
+	char *path = strcat(get_testfiles_dir(),"/test_open.txt");
 	test_open(path);
 	return 0;
 }
@@ -17,14 +17,14 @@ int main(int argc, char **argv)
 void test_open(char *path)
 {
 	int fd;
-	fd = open(path, O_APPEND);
+	fd = open(path, O_RDONLY);
 	if (fd < 0){
 		fprintf(stderr, "open(%s) error \n", path);
 		return;
 	}
 
 	 if (close(fd)!= 0){
-	     fprintf(stderr, "close() error \n");
+	     fprintf(stderr, "close(%s) error \n", path);
 	     return;
 	}
 

@@ -368,7 +368,7 @@ int lind_stat(const char *path, struct lind_stat *buf) {
 
 int lind_open(const char *path, int flags, int mode) {
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_fs_open, "[iis]", flags, mode, path), 0);
+			MakeLindSysCall(LIND_safe_fs_open, "[sii]", path, flags, mode), 0);
 }
 
 int lind_close(int fd) {

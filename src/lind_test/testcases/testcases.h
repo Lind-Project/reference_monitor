@@ -130,7 +130,6 @@ void *test_recvfrom();
 void *test_sendmsg();
 void *test_recvmsg();
 
-
 const char *get_testfiles_dir()
 {
 
@@ -148,8 +147,6 @@ const char *get_testfiles_dir()
 
 	strcpy(monitor_home, path);
 	strcat(monitor_home, appendStr);
-
-	fprintf(stdout, "final path %s\n", monitor_home);
 
 	return monitor_home;
 }

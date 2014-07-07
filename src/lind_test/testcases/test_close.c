@@ -10,7 +10,6 @@
 
 int main(int argc, char **argv)
 {
-
 	char *path = strcat(get_testfiles_dir(),"/test_read.txt");
 	test_close(path);
 	return 0;

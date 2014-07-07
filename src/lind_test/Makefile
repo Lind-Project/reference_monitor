@@ -1,4 +1,3 @@
-
 INCLUD= /usr/include
 
 CC = gcc
@@ -12,12 +11,12 @@ OBJDIR = utf/build
 
 SRCS = $(wildcard testcases/*.c)
 OBJS = $(SRCS:.c=.o )
-	
+
 .PHONY: all clean
 
 all: $(OBJS) $(HEADERS)
 %.o: %.c
 	$(CC) $(CFLAGS) $< -o $(OBJDIR)/$@ $(LFLAGS)
-         
+
 clean:
 	@- $(RM) $(BUILD_DIR)/*
