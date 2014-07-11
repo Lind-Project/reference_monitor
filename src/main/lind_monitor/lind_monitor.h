@@ -27,9 +27,9 @@
 #define LIND_PATH_MAX 4096
 
 struct syscall_args {
-	uint64_t syscall;
+	int64_t syscall;
 	uint64_t arg1, arg2, arg3, arg4, arg5, arg6;
-	uint64_t retval;
+	int64_t retval;
 	struct user user;
 };
 
@@ -39,11 +39,11 @@ void init_ptrace(int argc, char** argv);
 /* intercept the system calls issued by the tracee process */
 void intercept_calls();
 /* get the path of files required by a syscall through the defined address */
-char *get_path(long addr);
+char *get_path(uintptr_t addr);
 /* set the memory from an address to a specific buffer */
-void set_mem(long addr, void * buff, size_t count);
+void set_mem(uintptr_t addr, void * buff, size_t count);
 /* get count number of memory defined through an address */
-void *get_mem(long addr, size_t count);
+void *get_mem(uintptr_t addr, size_t count);
 /* return syscall number by name */
 int get_syscall_num(char *name);
 /* return the arguments of a syscall by ptrace */

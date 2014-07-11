@@ -17,17 +17,19 @@ int main(int argc, char **argv)
 void test_open(char *path)
 {
 	int fd;
-	fd = open(path, O_RDONLY);
+
+	mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+	fd = open(path, O_RDONLY, mode);
 	if (fd < 0){
-		fprintf(stderr, "open(%s) error \n", path);
+		fprintf(stderr, "[testcases] open(%s) error \n", path);
 		return;
 	}
 
 	 if (close(fd)!= 0){
-	     fprintf(stderr, "close(%s) error \n", path);
+	     fprintf(stderr, "[testcases] close(%s) error \n", path);
 	     return;
 	}
 
-	fprintf(stdout, "open(%s) successfully \n", path);
+	fprintf(stdout, "[testcases] open(%s) = %d \n", path, fd);
 }
 

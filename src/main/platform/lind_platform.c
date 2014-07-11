@@ -334,7 +334,7 @@ ssize_t lind_pwrite(int fd, const void *buf, int count, off_t offset) {
 int lind_access(const char *pathname, int mode) {
 	UNREFERENCED_PARAMETER(mode);
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_fs_access, "[is]", 1, pathname), 0);
+			MakeLindSysCall(LIND_safe_fs_access, "[si]", pathname, mode), 0);
 }
 
 int lind_unlink(const char *name) {
@@ -369,6 +369,12 @@ int lind_stat(const char *path, struct lind_stat *buf) {
 int lind_open(const char *path, int flags, int mode) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_fs_open, "[sii]", path, flags, mode), 0);
+}
+
+int lind_openat (int dir_fd, const char *path, int flags, int mode){
+
+	return ParseResponse(
+			MakeLindSysCall(LIND_safe_fs_openat, "[isii]", dir_fd, path, flags, mode), 0);
 }
 
 int lind_close(int fd) {
@@ -430,6 +436,12 @@ int lind_dup2(int oldfd, int newfd) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_fs_dup2, "[ii]", oldfd, newfd), 0);
 }
+
+int lind_dup3(int oldfd, int newfd, int flags) {
+	return ParseResponse(
+			MakeLindSysCall(LIND_safe_fs_dup3, "[iii]", oldfd, newfd, flags), 0);
+}
+
 
 int lind_getdents(unsigned int fd, char *dirp, unsigned int count) {
 	return ParseResponse(
@@ -788,10 +800,7 @@ void add_mapping(int src, int dest){
 
 	if (result == NULL){
 		fprintf(stderr, "Error while building the arguments src: %d  dest: %d\n", src, dest);
-	}else {
-		fprintf(stderr, "Building the arguments src: %d  dest: %d\n", src, dest);
 	}
-
 	Py_XDECREF(args);
 	Py_XDECREF(result);
 }

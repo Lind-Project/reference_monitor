@@ -10,6 +10,7 @@
 
 #include "../platform/lind_platform.h"
 
+
 int main(int argc, char** argv)
 {
 
@@ -29,8 +30,9 @@ int main(int argc, char** argv)
 void init_ptrace(int argc, char** argv)
 {
 
-	char *args[argc + 1];
-	memcpy(args, argv, argc * sizeof(char *));
+	char ** argv1 = malloc (sizeof (char* )* argc);
+	memcpy(argv1, argv+1,sizeof (char* )* (argc-1));
+	argv1[argc-1]=NULL;
 
 	load_config();
 	tracee = fork();
@@ -44,16 +46,21 @@ void init_ptrace(int argc, char** argv)
 	/* trace the child */
 	if (tracee == 0) {
 		/* to let the parent process to trace the child*/
-		ptrace(PTRACE_TRACEME, 0, 0, 0);
+		ptrace(PTRACE_TRACEME, tracee, 0, 0);
 
 		/* stop the current process*/
 		kill(getpid(), SIGSTOP);
 
 		extern char **environ;
-		execve(argv[1], argv, environ);
+
+
+		execve(argv[1], argv1, environ);
+
+
 		fprintf(stderr, "Unknown command %s\n", argv[1]);
 		exit(1);
 	}
+
 }
 
 /* intercept the system calls issued by the tracee process */
@@ -67,7 +74,7 @@ void intercept_calls()
 	void *buff;
 	struct syscall_args regs, regs_orig;
 	char *execve_path;
-
+	char **execve_args;
 	/* wait for the child to stop */
 	waitpid(tracee, &status, 0);
 
@@ -91,30 +98,40 @@ void intercept_calls()
 			exit(0);
 		}
 
+		get_args(&regs);
+
 		if ((WSTOPSIG(status) == SIGTRAP)
 				&& (status & (PTRACE_EVENT_EXIT << 8))) {
 
-			get_args(&regs);
-
-			if (regs.syscall != __NR_execve)
-				fprintf(stdout, "%s(%lu)\n", syscall_names[regs.syscall],
-						regs.arg1);
+		if (regs.syscall != __NR_execve)
+				fprintf(stdout, "[monitor] %s(%d)\n", syscall_names[regs.syscall], regs.arg1);
 
 		} else if (WSTOPSIG(status) == (SIGTRAP | 0x80)) {
-			if (entering == 1) {
-				entering = 0;
-				get_args(&regs);
-				syscall_num = regs.syscall;
 
+			if (entering == 1) {
+
+				syscall_num = regs.syscall;
 				regs_orig = regs;
 
+				if (monitor_actions[syscall_num] == DENY_LIND) {
+					fprintf(stdout, "[monitor] Deny call by Lind: %s %d\n",
+							syscall_names[syscall_num], regs.retval);
+					regs.retval = EINVAL;
+					set_args(&regs);
+					break;
+				}
+
+				entering = 0;
+
 				switch (syscall_num) {
+
 				case __NR_close:
 					if ((int32_t) regs.arg1 >= 0) {
 						regs.arg1 = get_mapping(regs.arg1);
 						set_args(&regs);
 					}
 					break;
+
 				case __NR_mmap:
 					if (((int32_t) regs.arg5) >= 0) {
 						regs.arg5 = get_mapping(regs.arg5);
@@ -124,6 +141,28 @@ void intercept_calls()
 
 				case __NR_execve:
 					 execve_path = get_path(regs.arg1);
+					 char** p;
+					 int i=0, argc;
+					 while(1) {
+						 p=(char**)get_mem(regs.arg2+i*sizeof(char*), sizeof (char*));
+						 ++i;
+						 if(!*p)
+							 break;
+					 }
+					 argc = i;
+					 execve_args = malloc(sizeof(char*)*argc);
+					 execve_args[argc-1] = 0;
+					 i=0;
+				     fprintf(stdout, "[monitor] execve(%s, [", execve_path);
+					 for(i=0; i<argc; ++i) {
+						 p=get_mem(regs.arg2+i*sizeof(char*), sizeof (char*));
+						 if(*p) {
+							 execve_args[i] = get_path(*p);
+							 fprintf(stdout, "[monitor] %s ", execve_args[i]);
+						 } else
+							 printf("]");
+					 }
+					 fprintf(stdout, "[monitor] ) = %d \n", regs.retval);
 					break;
 
 				default:
@@ -131,16 +170,10 @@ void intercept_calls()
 				}
 			} else {
 				/* get the tracee registers */
-				get_args(&regs);
 				entering = 1;
 
-				if (monitor_actions[syscall_num] == DENY_LIND) {
-					fprintf(stdout, "Deny call by Lind: %s %d\n",
-							syscall_names[syscall_num], regs.retval);
-					regs.retval = EINVAL;
-					set_args(&regs);
 
-				} else if (monitor_actions[syscall_num] == ALLOW_OS) {
+				if (monitor_actions[syscall_num] == ALLOW_OS) {
 
 					switch (syscall_num) {
 
@@ -149,20 +182,17 @@ void intercept_calls()
 						//regs.arg1 = get_mapping(regs.arg1);
 						//set_args(&regs);
 						break;
-					case __NR_execve:
-						fprintf(stdout, "execve(%s)=%d \n", execve_path, regs.retval);
-						break;
 
 					case __NR_mmap:
-							fprintf(stdout, "mmap()=0x%jx \n", regs.retval);
+							fprintf(stdout, "[monitor] mmap()=0x%jx \n", regs.retval);
 						break;
 
 					case __NR_brk:
-						fprintf(stdout, "brk()=0x%jx \n", regs.retval);
+						fprintf(stdout, "[monitor] brk()=0x%jx \n", regs.retval);
 						break;
 
 					default:
-						fprintf(stdout, "%s()=%d \n",
+						fprintf(stdout, "[monitor] %s()=%d \n",
 								syscall_names[syscall_num], regs.retval);
 						break;
 					} /* switch*/
@@ -177,7 +207,7 @@ void intercept_calls()
 
 					case __NR_getuid:
 						regs.retval = lind_getuid();
-						fprintf(stdout, "getuid() = %ld \n", regs.retval);
+						fprintf(stdout, "[monitor] getuid() = %d \n", (int) regs.retval);
 						break;
 
 					case __NR_read:
@@ -191,70 +221,86 @@ void intercept_calls()
 						break;
 
 					case __NR_open:
-						if ((int32_t) regs.retval >= 0) {
 							path = get_path(regs.arg1);
 							lind_fd = lind_open(path, regs.arg2, regs.arg3);
 
 							if (lind_fd  >= 0){
-							add_mapping(regs.retval, lind_fd);
-							regs.retval = lind_fd;
-							fprintf(stdout, "open(%s, %d, %d) = %d\n", path, regs.arg2, regs.arg3,
-									regs.retval);
+								add_mapping(regs.retval, lind_fd);
+								regs.retval = lind_fd;
 							}else {
 								regs.retval = -1;
 							}
-						}
-						break;
+							fprintf(stdout, "[monitor] open(%s, %d, %d) = %d\n", path, (int) regs.arg2, (int) regs.arg3, (int) regs.retval);
+
+							break;
+
+					case __NR_openat:
+							path = get_path(regs.arg2);
+							lind_fd = lind_openat(regs.arg1, path, regs.arg3, regs.arg4);
+
+							if (lind_fd  >= 0){
+								add_mapping(regs.retval, lind_fd);
+								regs.retval = lind_fd;
+							}else {
+								regs.retval = -1;
+							}
+							fprintf(stdout, "[monitor] openat(%d, %s, %d, %d) = %d\n", (int) regs.arg1, path, (int) regs.arg2, (int) regs.arg4, (int) regs.retval);
+							break;
 
 					case __NR_access:
 						path = get_path(regs.arg1);
 
 						lind_fd = lind_access(path, regs.arg2);
-						add_mapping(regs.retval, lind_fd);
-						regs.retval = lind_fd;
-						fprintf(stdout, "access(%s) = %d \n", path, regs.retval);
+						if (lind_fd  >= 0){
+							add_mapping(regs.retval, lind_fd);
+							regs.retval = lind_fd;
+							}else {
+								regs.retval = -1;
+							}
+						fprintf(stdout, "[monitor] access(%s, %d, %d) = %d\n", path, (int) regs.arg2, (int) regs.arg3,
+											(int) regs.retval);
+
 						break;
 
 					case __NR_close:
 						//lind_fd = get_mapping(regs.arg1);
-						regs.retval = lind_close((int)regs_orig.arg1);
-						fprintf(stdout, "close(%d) = %d \n", (int)regs_orig.arg1,
-								(int)regs.retval);
+						regs.retval = lind_close(regs_orig.arg1);
+						fprintf(stdout, "[monitor] close(%d) = %d \n", (int) regs_orig.arg1, (int) regs.retval);
 						break;
 
 					case __NR_rmdir:
 						path = get_path(regs.arg1);
 						regs.retval = lind_rmdir(path);
-						fprintf(stdout, "rmdir(%s) = %d \n", path, regs.retval);
+						fprintf(stdout, "[monitor] rmdir(%s) = %d \n", path, (int) regs.retval);
 						break;
 
 					case __NR_statfs:
 						path = get_path(regs.arg1);
 						regs.retval = lind_statfs(path, &stfs);
 						set_mem(regs.arg2, &stfs, sizeof(stfs));
-						fprintf(stdout, "statfs(%s) = %d \n", path, regs.retval);
+						fprintf(stdout, "[monitor] statfs(%s) = %d \n", path, (int) regs.retval);
 						break;
 
 					case __NR_stat:
 						path = get_path(regs.arg1);
 						regs.retval = lind_stat(path, &st);
 						set_mem(regs.arg2, &st, sizeof(st));
-						fprintf(stdout, "stat(%s) = %d \n", path, regs.retval);
+						fprintf(stdout, "[monitor] stat(%s) = %d \n", path, (int) regs.retval);
 
 						break;
 
 					case __NR_fstat:
 						regs.retval = lind_fstat(regs.arg1, &st);
 						set_mem(regs.arg2, &st, sizeof(st));
-						fprintf(stdout, "fstat(%u) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] fstat(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_fstatfs:
 						regs.retval = lind_fstatfs(regs.arg1, &stfs);
 						set_mem(regs.arg2, &stfs, sizeof(stfs));
-						fprintf(stdout, "fstatfs(%u) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] fstatfs(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_write:
@@ -262,116 +308,122 @@ void intercept_calls()
 								get_mem(regs.arg2, regs.arg3), regs.arg3);
 						fprintf(stdout,
 								"write(%ld, 0x%lx[\"%p\"], %ld) = %d \n",
-								regs.arg1, regs.arg2,
-								get_mem(regs.arg2, regs.arg3), regs.arg3,
-								regs.retval);
+								(int) regs.arg1, (int) regs.arg2,
+								get_mem(regs.arg2, regs.arg3), (int) regs.arg3,
+								(int) regs.retval);
 						break;
 
 					case __NR_mkdir:
 						path = get_path(regs.arg1);
 						regs.retval = lind_mkdir(path, regs.arg2);
-						fprintf(stdout, "mkdir(%s) = %d \n", path, regs.retval);
+						fprintf(stdout, "[monitor] mkdir(%s) = %d \n", path, (int) regs.retval);
 						break;
 
 					case __NR_chdir:
 						path = get_path(regs.arg1);
 						regs.retval = lind_chdir(path);
-						fprintf(stdout, "chdir(%s) = %d \n", path, regs.retval);
+						fprintf(stdout, "[monitor] chdir(%s) = %d \n", path, (int) regs.retval);
 						break;
 
 					case __NR_getcwd:
 						path = get_mem(regs.arg1, regs.arg2);
 						regs.retval = lind_getcwd(path, regs.arg2);
-						fprintf(stdout, "getcwd(%s) = %d \n", path, regs.retval);
+						fprintf(stdout, "[monitor] getcwd(%s) = %d \n", path, (int) regs.retval);
 						break;
 
 					case __NR_dup:
 						regs.retval = lind_dup(regs.arg1);
-						fprintf(stdout, "dup(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] dup(%ld) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_dup2:
 						regs.retval = lind_dup2(regs.arg1, regs.arg2);
-						fprintf(stdout, "dup2(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] dup2(%d, %d) = %d \n", (int) regs.arg1, (int) regs.arg2,
+								(int) regs.retval);
+						break;
+
+					case __NR_dup3:
+						regs.retval = lind_dup3(regs.arg1, regs.arg2, regs.arg3);
+						fprintf(stdout, "[monitor] dup3(%d, %d, %d) = %d \n", (int) regs.arg1, (int) regs.arg2, (int) regs.arg3,
+								(int) regs.retval);
 						break;
 
 					case __NR_getpid:
 						regs.retval = lind_getpid();
-						fprintf(stdout, "getpid() = %d \n", regs.retval);
+						fprintf(stdout, "[monitor] getpid() = %d \n", (int) regs.retval);
 						break;
 
 					case __NR_geteuid:
 						regs.retval = lind_geteuid();
-						fprintf(stdout, "geteuid() = %d \n", regs.retval);
+						fprintf(stdout, "[monitor] geteuid() = %d \n", (int) regs.retval);
 						break;
 
 					case __NR_getgid:
 						regs.retval = lind_getgid();
-						fprintf(stdout, "getgid() = %d \n", regs.retval);
+						fprintf(stdout, "[monitor] getgid() = %d \n", (int) regs.retval);
 						break;
 
 					case __NR_getegid:
 						regs.retval = lind_getegid();
-						fprintf(stdout, "getegid() = %d \n", regs.retval);
+						fprintf(stdout, "[monitor] getegid() = %d \n", (int) regs.retval);
 						break;
 
 					case __NR_unlink:
 						path = get_path(regs.arg1);
 						regs.retval = lind_unlink(path);
-						fprintf(stdout, "unlink(%s) = %d \n", path, regs.retval);
+						fprintf(stdout, "[monitor] unlink(%s) = %d \n", path, (int) regs.retval);
 						break;
 
 					case __NR_link:
 						path = get_path(regs.arg1);
 						path1 = get_path(regs.arg2);
 						regs.retval = lind_link(path, path1);
-						fprintf(stdout, "link(%s, %s) = %d \n", path, path1,
-								regs.retval);
+						fprintf(stdout, "[monitor] link(%s, %s) = %d \n", path, path1,
+								(int) regs.retval);
 						break;
 
 					case __NR_fcntl:
 						regs.retval = lind_fcntl(regs.arg1, regs.arg2);
-						fprintf(stdout, "fcntl(%ld, %ld) = %d \n", regs.arg1,
-								regs.arg2, regs.retval);
+						fprintf(stdout, "[monitor] fcntl(%ld, %ld) = %d \n", (int) regs.arg1,
+								(int) regs.arg2, (int) regs.retval);
 						break;
 
 					case __NR_listen:
 						regs.retval = lind_listen(regs.arg1, regs.arg2);
-						fprintf(stdout, "listen(%d, %d) = %d \n", regs.arg1,
-								regs.arg2, regs.retval);
+						fprintf(stdout, "[monitor] listen(%d, %d) = %d \n", (int) regs.arg1,
+								(int) regs.arg2, (int) regs.retval);
 						break;
 
 					case __NR_shutdown:
 						regs.retval = lind_shutdown(regs.arg1, regs.arg2);
-						fprintf(stdout, "shutdown(%d, %d) = %d \n", regs.arg1,
-								regs.arg2, regs.retval);
+						fprintf(stdout, "[monitor] shutdown(%d, %d) = %d \n", (int) regs.arg1,
+								(int) regs.arg2, (int) regs.retval);
 						break;
 
 					case __NR_flock:
 						regs.retval = lind_flock(regs.arg1, regs.arg2);
-						fprintf(stdout, "flock(%u, %u) = %d \n", regs.arg1,
-								regs.arg2, regs.retval);
+						fprintf(stdout, "[monitor] flock(%d, %d) = %d \n", (int) regs.arg1,
+								(int) regs.arg2, (int) regs.retval);
 						break;
 
 					case __NR_epoll_create:
 						regs.retval = lind_epoll_create(regs.arg1);
-						fprintf(stdout, "epoll_create(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] epoll_create(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_getdents:
 						regs.retval = lind_getdents(regs.arg1,
 								get_mem(regs.arg2, regs.arg3), regs.arg3);
-						fprintf(stdout, "getdents(%p) = %d \n",
-								get_mem(regs.arg2, regs.arg3), regs.retval);
+
+						fprintf(stdout, "[monitor] getdents(%d, %d) = %d \n", regs.arg1, regs.arg3, regs.retval);
 						break;
 
 					case __NR_lseek:
 						regs.retval = lind_lseek(regs.arg1, regs.arg2,
 								regs.arg3);
-						fprintf(stdout, "lseek(%u, %lld, %u) = %d \n",
+						fprintf(stdout, "[monitor] lseek(%u, %lld, %u) = %d \n",
 								regs.arg1, regs.arg2, regs.arg3, regs.retval);
 						break;
 
@@ -401,9 +453,9 @@ void intercept_calls()
 						if (regs.arg1 == AF_INET) {
 							regs.retval = lind_socket(regs.arg1, regs.arg2,
 									regs.arg3);
-							fprintf(stdout, "socket(%d, %d, %d) = %d \n",
-									regs.arg1, regs.arg2, regs.arg3,
-									regs.retval);
+							fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d \n",
+									(int) regs.arg1, (int) regs.arg2, (int) regs.arg3,
+									(int) regs.retval);
 						}
 						break;
 
@@ -412,8 +464,8 @@ void intercept_calls()
 								get_mem(regs.arg2,
 										sizeof(struct lind_sockaddr)),
 								regs.arg3);
-						fprintf(stdout, "bind(%d) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] bind(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_connect:
@@ -421,8 +473,8 @@ void intercept_calls()
 								get_mem(regs.arg2,
 										sizeof(struct lind_sockaddr)),
 								regs.arg3);
-						fprintf(stdout, "connect(%d) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] connect(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 
 						break;
 
@@ -431,8 +483,8 @@ void intercept_calls()
 								get_mem(regs.arg2,
 										sizeof(struct lind_sockaddr)),
 								(lind_socklen_t*) regs.arg3);
-						fprintf(stdout, "accept(%d) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] accept(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_sendto:
@@ -442,8 +494,8 @@ void intercept_calls()
 								get_mem(regs.arg2,
 										sizeof(struct lind_sockaddr)),
 								regs.arg5);
-						fprintf(stdout, "sendto(%d) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] sendto(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_recvfrom: {
@@ -453,8 +505,8 @@ void intercept_calls()
 								regs.arg4, buff, (lind_socklen_t*) regs.arg6);
 						set_mem(regs.arg2, var, regs.arg3);
 						set_mem(regs.arg5, buff, regs.arg6);
-						fprintf(stdout, "recvfrom(%d) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] recvfrom(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 					}
 						break;
 
@@ -495,7 +547,7 @@ void intercept_calls()
 						free(iovs);
 						free(iovs_orig);
 						free(msg);
-						fprintf(stdout, "recvmsg(%ld) = %d \n", regs.arg1,
+						fprintf(stdout, "[monitor] recvmsg(%ld) = %d \n", regs.arg1,
 								regs.retval);
 					}
 						break;
@@ -525,7 +577,7 @@ void intercept_calls()
 						msg->msg_control = malloc(msg->msg_controllen);
 
 						regs.retval = lind_sendmsg(regs.arg1, msg, regs.arg3);
-						fprintf(stdout, "sendmsg(%ld) = %d \n", regs.arg1,
+						fprintf(stdout, "[monitor] sendmsg(%ld) = %d \n", regs.arg1,
 								regs.retval);
 					}
 						break;
@@ -536,7 +588,7 @@ void intercept_calls()
 						regs.retval = lind_getsockname(regs.arg1, buff,
 								(lind_socklen_t*) regs.arg3);
 						set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
-						fprintf(stdout, "getsockname(%ld) = %d \n", regs.arg1,
+						fprintf(stdout, "[monitor] getsockname(%ld) = %d \n", regs.arg1,
 								regs.retval);
 					}
 						break;
@@ -546,8 +598,8 @@ void intercept_calls()
 						regs.retval = lind_getsockopt(regs.arg1, regs.arg2,
 								regs.arg3, buff, (lind_socklen_t*) regs.arg5);
 						set_mem(regs.arg4, buff, sizeof(struct lind_sockaddr));
-						fprintf(stdout, "getsockopt(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] getsockopt(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 					}
 						break;
 
@@ -557,15 +609,15 @@ void intercept_calls()
 								get_mem(regs.arg4,
 										sizeof(struct lind_sockaddr)),
 										(lind_socklen_t) regs.arg5);
-						fprintf(stdout, "setsockopt(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] setsockopt(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					case __NR_socketpair:
 						regs.retval = lind_socketpair(regs.arg1, regs.arg2,
 								 get_mem(regs.arg3, 2 * sizeof(int)), regs.arg3);
-						fprintf(stdout, "socketpair(%ld, %ld) = %d \n",
-								regs.arg1, regs.arg2, regs.retval);
+						fprintf(stdout, "[monitor] socketpair(%d, %d) = %d \n",
+								(int) regs.arg1, (int) regs.arg2, (int) regs.retval);
 						break;
 
 					case __NR_getpeername: {
@@ -573,8 +625,9 @@ void intercept_calls()
 						regs.retval = lind_getpeername(regs.arg1, buff,
 								(lind_socklen_t*) regs.arg3);
 						set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
-						fprintf(stdout, "getpeername(%ld) = %d \n", regs.arg1,
-								regs.retval);
+
+						fprintf(stdout, "[monitor] getpeername(%d) = %d \n", (int) regs.arg1,
+								 (int) regs.retval);
 					}
 						break;
 
@@ -589,8 +642,8 @@ void intercept_calls()
 						set_mem(regs.arg3, set2, sizeof(fd_set));
 						set_mem(regs.arg4, set3, sizeof(fd_set));
 						set_mem(regs.arg5, tv, sizeof(struct timeval));
-						fprintf(stdout, "select(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] select(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 					}
 						break;
 
@@ -599,8 +652,8 @@ void intercept_calls()
 								sizeof(struct lind_pollfd));
 						regs.retval = lind_poll(lpfd, regs.arg2, regs.arg3);
 						set_mem(regs.arg1, lpfd, sizeof(struct lind_pollfd));
-						fprintf(stdout, "poll(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] poll(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 					}
 						break;
 
@@ -614,8 +667,8 @@ void intercept_calls()
 
 						set_mem(regs.arg4, event,
 								sizeof(struct lind_epoll_event));
-						fprintf(stdout, "epoll_ctl(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] epoll_ctl(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 					}
 						break;
 
@@ -627,12 +680,13 @@ void intercept_calls()
 						set_mem(regs.arg2, event,
 								sizeof(struct lind_epoll_event));
 					}
-						fprintf(stdout, "epoll_wait(%ld) = %d \n", regs.arg1,
-								regs.retval);
+						fprintf(stdout, "[monitor] epoll_wait(%d) = %d \n", (int) regs.arg1,
+								(int) regs.retval);
 						break;
 
 					default:
 						regs.retval = EINVAL;
+						fprintf(stdout, "[monitor] %s() = %d is not supported by Lind \n", syscall_names[syscall_num], regs.retval);
 						break;
 					} /* switch*/
 					set_args(&regs);
@@ -643,34 +697,35 @@ void intercept_calls()
 }
 
 /* get the path of files required by a syscall through the defined address */
-char *get_path(long addr)
+char *get_path(uintptr_t addr)
 {
-	char path[LIND_PATH_MAX];
-	long ret;
-	char ch;
-	int i;
-	int j = 0;
-	size_t len = 0;
-	do {
-		ret = ptrace(PTRACE_PEEKDATA, tracee, (char *) (addr + j), 0);
-		for (i = 0; i < sizeof(long); i++) {
-			ch = ret - (ret >> 8) * 256;
-			if (ch == 0)
-				break;
-			path[len++] = ch;
-			ret = ret >> 8;
+	size_t len= PATH_MAX;
+	char *buffer =  buffer = malloc(len);
+
+	uint32_t tmp;
+	int i = 0;
+
+	while (1) {
+		if (i >= len) {
+			len *= 2;
+			buffer = realloc(buffer, len);
 		}
-		j = j + sizeof(long);
-	} while (ch != 0);
 
-	path[len++] = '\0';
-	fprintf(stdout, "Path: %s \n", path);
+		tmp = ptrace(PTRACE_PEEKDATA, tracee, addr + i, NULL);
+		memcpy(buffer + i, (void *) &tmp, sizeof(tmp));
 
-	return path;
+		if (memchr(&tmp, 0, sizeof(tmp)) != NULL) {
+			break;
+		}
+
+		i += 4;
+	}
+
+	return buffer;
 }
 
 /* set the memory from an address to a specific buffer */
-void set_mem(long addr, void * buff, size_t count)
+void set_mem(uintptr_t addr, void * buff, size_t count)
 {
 	long ret = -1;
 	int i;
@@ -697,7 +752,7 @@ void set_mem(long addr, void * buff, size_t count)
 }
 
 /* get count number of memory defined through an address */
-void *get_mem(long addr, size_t count)
+void *get_mem(uintptr_t addr, size_t count)
 {
 
 	long ret;
@@ -728,9 +783,10 @@ int get_syscall_num(char *name)
 void get_args(struct syscall_args *args)
 {
 
-	if (ptrace(PTRACE_GETREGS, tracee, 0, &args->user) < 0)
+	if (ptrace(PTRACE_GETREGS, tracee, 0, &args->user) < 0) {
 		fprintf(stderr, "ptrace did not get the register arguments.");
-
+		return;
+	}
 	args->syscall = args->user.regs.orig_rax;
 	args->retval = args->user.regs.rax;
 
@@ -757,6 +813,7 @@ void set_args(struct syscall_args *args)
 
 	if (ptrace(PTRACE_SETREGS, tracee, 0, &args->user) < 0) {
 		fprintf(stderr, "ptrace was not set. \n");
+		return;
 	}
 }
 
@@ -770,7 +827,7 @@ int load_config()
 
 	FILE *fp = fopen(config_file, "r");
 	if (fp == NULL) {
-		fprintf(stdout, "Config file %s could not be opened. \n ", config_file);
+		fprintf(stdout, "[monitor] Config file %s could not be opened. \n ", config_file);
 		exit(-1);
 	}
 

@@ -1,0 +1,2 @@
+this is a test for lind open syscall.
+this is a test for open syscall lind.

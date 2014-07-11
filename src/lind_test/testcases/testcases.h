@@ -112,6 +112,7 @@ void test_getsockopt();
 void test_creat();
 void test_dup();
 void test_dup2();
+void test_dup3();
 void test_readp64(char *path);
 void test_pwritev(char *path);
 void test_getdents(char *path);
@@ -129,6 +130,8 @@ void *test_sendto();
 void *test_recvfrom();
 void *test_sendmsg();
 void *test_recvmsg();
+void test_openat(char *path);
+
 
 const char *get_testfiles_dir()
 {

@@ -72,6 +72,9 @@
 #define LIND_safe_fs_rename             55
 #define LIND_safe_net_sendmsg           59
 #define LIND_safe_net_recvmsg           60
+#define LIND_safe_fs_openat             61
+#define LIND_safe_fs_dup3             	62
+
 #define LIND_comp_cia                   105
 #define LIND_comp_call                  106
 #define LIND_comp_accept                107
@@ -92,6 +95,7 @@ int lind_mkdir (const char *path, int mode);
 int lind_rmdir (const char *path);
 int lind_stat (const char *path, struct lind_stat *buf);
 int lind_open (const char *path, int flags, int mode);
+int lind_openat (int dir_fd, const char *path, int flags, int mode);
 int lind_close (int fd);
 ssize_t lind_read (int fd, void *buf, size_t count);
 ssize_t lind_write (int fd, const void *buf, size_t count);
@@ -103,6 +107,7 @@ int lind_noop (void);
 int lind_getpid (void);
 int lind_dup (int oldfd);
 int lind_dup2 (int oldfd, int newfd);
+int lind_dup3 (int oldfd, int newfd, int flags);
 int lind_getdents (unsigned int fd, char *dirp,
                     unsigned int count);
 int lind_fcntl_get (int fd, int cmd);
