@@ -8,6 +8,7 @@
 #ifndef LIND_PLATFORM_H_
 #define LIND_PLATFORM_H_
 
+
 #include <sys/types.h>
 #if NACL_LINUX
 #include <sys/statfs.h>
@@ -20,7 +21,6 @@
 #include <stdint.h>
 
 #include "lind_stat.h"
-
  /* These values are according to /lind_glibc/sysdeps/nacl/lind_syscalls.h constants. */
 
 #define LIND_debug_noop                 1
@@ -74,6 +74,8 @@
 #define LIND_safe_net_recvmsg           60
 #define LIND_safe_fs_openat             61
 #define LIND_safe_fs_dup3             	62
+#define LIND_safe_fs_readv              63
+#define LIND_safe_fs_wrtiev             64
 
 #define LIND_comp_cia                   105
 #define LIND_comp_call                  106
@@ -84,9 +86,6 @@ int GetHostFdFromLindFd(int lindFd);
 
 int LindPythonInit(void);
 int LindPythonFinalize(void);
-
-ssize_t lind_pread(int fd, void* buf, int count, off_t offset);
-ssize_t lind_pwrite(int fd, const void *buf, int count, off_t offset);
 int lind_access (const char *pathname, int mode);
 int lind_unlink (const char *name);
 int lind_link (const char *from, const char *to);
@@ -142,6 +141,11 @@ int lind_fcntl(int fd, int cmd, ...);
 int lind_epoll_create(int size);
 int lind_epoll_ctl(int epfd, int op, int fd, struct lind_epoll_event *event);
 int lind_epoll_wait(int epfd, struct lind_epoll_event *events, int maxevents, int timeout);
+ssize_t lind_pread(int fd, void* buf, int count, off_t offset);
+ssize_t lind_pwrite(int fd, const void *buf, int count, off_t offset);
+ssize_t lind_readv(int fd, void* buf, int count);
+ssize_t lind_writev(int fd, const void *buf, int count);
+
 void add_mapping(int src, int dest);
 int get_mapping(int fd);
 const char *get_repy_path();

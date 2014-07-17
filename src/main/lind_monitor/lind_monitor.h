@@ -1,9 +1,9 @@
 /*
- * lind_monitor.h
- *
- *  Created on: April 17, 2014
- *      Author: Ali Gholami, Shengqian Ji
- */
+* lind_monitor.h
+*
+* Created on: April 17, 2014
+* Author: Ali Gholami, Shengqian Ji
+*/
 
 #include <unistd.h>
 #include <stdio.h>
@@ -18,7 +18,9 @@
 #include <sys/user.h>
 #include <errno.h>
 #include <stdarg.h>
-#include <linux/unistd.h>	/* __NR_XXX */
+#include <linux/unistd.h> /* __NR_XXX */
+#include <string.h>
+
 #include "lind_util.h"
 
 #ifdef __x86_64__
@@ -26,13 +28,14 @@
 #define SIZE(a) (int)(sizeof(a)/sizeof(a[0]))
 #define LIND_PATH_MAX 4096
 
-struct syscall_args {
+static struct syscall_args {
 	int64_t syscall;
 	uint64_t arg1, arg2, arg3, arg4, arg5, arg6;
 	int64_t retval;
 	struct user user;
-};
+} regs;
 
+static int entering =1;
 
 /* initialize a process to be traced */
 void init_ptrace(int argc, char** argv);
@@ -62,11 +65,11 @@ enum monitor_action {
 };
 
 /* the tracee pid that should be monitored */
-pid_t tracee;
+static pid_t tracee;
 
 const char * const syscall_names[] = {
 #include "configs/syscalls.h"
-		};
+};
 
 #define TOTAL_SYSCALLS SIZE(syscall_names)
 
