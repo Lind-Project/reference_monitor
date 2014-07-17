@@ -973,9 +973,9 @@ void monitor_os()
 {
 	if (entering) {
 		entering = 0;
+	} else {
 		fprintf(stdout, "[monitor] %s()=%d \n", syscall_names[regs.syscall],
 				(int) regs.retval);
-	} else {
 		entering = 1;
 	}
 }
@@ -1002,7 +1002,7 @@ void monitor_mmap()
 		if (((int32_t) regs.arg5) >= 0) {
 			regs.arg5 = get_mapping(regs.arg5);
 			set_args(&regs);
-			fprintf(stdout, "[monitor] mmap() = 0x%jx  \n", (int) regs.retval);
+			fprintf(stdout, "[monitor] mmap() = 0x%jx  \n", regs.retval);
 		}
 	} else {
 		entering = 1;
@@ -1013,7 +1013,7 @@ void monitor_munmap()
 {
 	if (entering) {
 		entering = 0;
-		fprintf(stdout, "[monitor] munmap() = %lu  \n", regs.retval);
+		fprintf(stdout, "[monitor] munmap() = 0x%jx  \n", regs.retval);
 	} else {
 		entering = 1;
 	}
@@ -1038,6 +1038,38 @@ void monitor_brk()
 		entering = 1;
 	}
 }
+
+void monitor_exit_group()
+{
+	if (entering) {
+		entering = 0;
+		fprintf(stdout, "[monitor] exit_group() = %d  \n", (int) regs.retval);
+	} else {
+		entering = 1;
+	}
+}
+
+void monitor_exit()
+{
+	if (entering) {
+		entering = 0;
+		fprintf(stdout, "[monitor] exit() = %d  \n", (int) regs.retval);
+	} else {
+
+		entering = 1;
+	}
+}
+void monitor_tgkill()
+{
+	if (entering) {
+		entering = 0;
+		fprintf(stdout, "[monitor] tgkill() = %d  \n", (int) regs.retval);
+	} else {
+
+		entering = 1;
+	}
+}
+
 
 int main(int argc, char** argv)
 {
@@ -1114,7 +1146,7 @@ void intercept_calls()
 
 		if (!WIFSTOPPED(status)) {
 			fprintf(stderr, "wait(&status)=%d\n", status);
-			exit(0);
+			exit(status);
 		}
 
 		get_args(&regs);
@@ -1131,6 +1163,19 @@ void intercept_calls()
 				case __NR_execve:
 					monitor_execve();
 					break;
+
+				case __NR_tgkill:
+					monitor_tgkill();
+					break;
+
+				case __NR_exit_group:
+					monitor_exit_group();
+					break;
+
+				case __NR_exit:
+					monitor_exit();
+					break;
+
 				case __NR_arch_prctl:
 					monitor_arch_prctl();
 					break;
