@@ -18,7 +18,8 @@ void test_connect()
 	struct sockaddr_in dest;
 
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		fprintf(stderr, "socket() error %d \n", sockfd);
+		fprintf(stderr, "socket() = %d error \n", sockfd);
+		return;
 	}
 
 	bzero(&dest, sizeof(dest));
@@ -30,14 +31,14 @@ void test_connect()
 	int ret;
 
 	if ((ret = connect(sockfd, (struct sockaddr*) &dest, sizeof(dest))) != 0) {
-		fprintf(stderr, "connect() error %d  \n", ret);
+		fprintf(stderr, "connect() = %d error \n", ret);
 		return;
 	}
 
-	if (close(sockfd)!= 0){
-		 fprintf(stderr, "close() error \n");
+	if ((ret=close(sockfd))!= 0){
+		 fprintf(stderr, "close() = %d error \n", ret);
   	     return;
  	}
 
-	fprintf(stdout, "successfully accepted connection \n");
+	fprintf(stdout, "successfully connected \n");
 }

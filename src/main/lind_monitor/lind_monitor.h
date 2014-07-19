@@ -20,7 +20,6 @@
 #include <stdarg.h>
 #include <linux/unistd.h> /* __NR_XXX */
 #include <string.h>
-
 #include "lind_util.h"
 
 #ifdef __x86_64__

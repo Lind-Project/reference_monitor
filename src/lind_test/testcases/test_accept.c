@@ -48,7 +48,6 @@ void * test_accept()
 
 	if (sd1 < 0) {
 		fprintf(stderr, "socket() error \n");
-
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -95,7 +94,7 @@ void *test_accept_client()
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (sockfd < 0) {
-		fprintf(stderr, "client - socket() error \n");
+		fprintf(stderr, "client - socket() = %d error \n", sockfd);
 
 	}
 
@@ -105,11 +104,10 @@ void *test_accept_client()
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons(ACCEPT_SERVER_PORT);
 
-
 	rc = connect(sockfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
 
 	if (rc < 0) {
-		fprintf(stderr, "client - connect() error \n");
+		fprintf(stderr, "client: connect() = %d error \n", rc);
 		close(sockfd);
 
 	}

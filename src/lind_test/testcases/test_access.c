@@ -19,31 +19,34 @@ void test_access(char *path)
 	 int rval;
 	 /* Check file existence. */
 	 rval = access (path, F_OK);
-	 if (rval == 0)
+	 if (rval == 0) {
 	  fprintf (stdout, "%s exists\n", path);
-	 else {
-	  if (errno == ENOENT)
+	 } else {
+	  if (errno == ENOENT){
 		  fprintf (stderr, "%s does not exist\n", path);
-	  else if (errno == EACCES)
+		  return;
+	  }else if (errno == EACCES){
 		  fprintf (stderr, "%s is not accessible\n", path);
-	  return ;
-	 }
+		  return ;
+	  }}
 
 	 /* Check read access. */
 	 rval = access (path, R_OK);
-	 if (rval == 0)
+	 if (rval == 0){
 		 fprintf (stdout, "%s is readable\n", path);
-	 else
+	 }else {
 		 fprintf (stderr, "%s is not readable (access denied)\n", path);
-
+		 return;
+	 }
 	 /* Check write access. */
 	 rval = access (path, W_OK);
-	 if (rval == 0)
+	 if (rval == 0) {
 		 fprintf (stdout, "%s is writable\n", path);
-	 else if (errno == EACCES)
+	 } else if (errno == EACCES){
 		 fprintf (stderr, "%s is not writable (access denied)\n", path);
-	 else if (errno == EROFS)
+		 return;
+	 } else if (errno == EROFS) {
 		 fprintf (stderr, "%s is not writable (read-only filesystem)\n", path);
-
-
+		 return;
+	 }
 }
