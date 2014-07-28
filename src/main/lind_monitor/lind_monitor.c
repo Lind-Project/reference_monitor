@@ -619,7 +619,6 @@ void monitor_bind()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
 		regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_bind(regs.arg1,
@@ -693,7 +692,6 @@ void monitor_recvfrom()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
 		regs.arg1 = get_mapping(regs.arg1);
 		char *var = malloc(regs.arg3);
@@ -755,7 +753,6 @@ void monitor_recvmsg()
 			free(msg);
 
 			set_args(&regs);
-
 
 		fprintf(stdout, "[monitor] recvmsg(%d, %d) = %d \n", (int) regs.arg1,
 				(int) regs.arg3, (int) regs.retval);
@@ -845,9 +842,7 @@ void monitor_setsockopt()
 		regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_setsockopt(regs.arg1, regs.arg2, regs.arg3,
 				get_mem(regs.arg4, sizeof(struct lind_sockaddr)), regs.arg5);
-
 		set_args(&regs);
-
 		fprintf(stdout, "[monitor] setsockopt(%d) = %d \n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
