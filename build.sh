@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-MAKEFILE_DIR=./Release/
+MAKEFILE_DIR=./src/main/
 TESTCASES_DIR=./src/lind_test/
 GEN_SYSCALLS=./src/main/lind_monitor/configs/syscall_generator
 
@@ -23,6 +23,8 @@ $GEN_SYSCALLS > ./src/main/lind_monitor/configs/syscalls.h
 cd $TESTCASES_DIR
 make clean
 make
+
+cd ../../
 
 cd $MAKEFILE_DIR
 

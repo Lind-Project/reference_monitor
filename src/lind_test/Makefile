@@ -1,7 +1,7 @@
 INCLUD= /usr/include
 
 CC = gcc
-CFLAGS = -Wall -g -O2 $(IFLAGS) -std=C99
+CFLAGS = -Wall -g -O3 $(IFLAGS) -std=C99
 LFLAGS = -lpthread -lcurl
 IFLAGS = -I$(INCLUDE) 
 

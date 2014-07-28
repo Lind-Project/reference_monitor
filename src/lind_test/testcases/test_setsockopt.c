@@ -58,7 +58,7 @@ void *test_setsockopt() {
 		return;
 	}
 
-	if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT, &keepcnt, sizeof(int)) < 0 ){
+	if(setsockopt(sockfd, SOL_TCP, TCP_DEFER_ACCEPT, &keepcnt, sizeof(int)) < 0 ){
 		fprintf(stderr, "setsockopt failed \n");
 		return;
 	}
