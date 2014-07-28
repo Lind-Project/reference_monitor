@@ -28,4 +28,5 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) $(IFLAGS) $(LFLAGS) -o $@
 	
 clean:
-	@- $(RM) *.o $(TARGET)
+	@- $(RM) *.o $(TARGET) lind_monitor/*.o
+
