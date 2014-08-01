@@ -75,12 +75,13 @@ void monitor_deny()
 void monitor_close()
 {
 	if (entering) {
-		if ((int32_t) regs.arg1 >= 0) {
-			regs.arg1 = get_mapping(regs.arg1);
-			}
 		entering = 0;
+		if ((int32_t) regs.arg1 >= 0) {
+	//		regs.arg1 = get_mapping(regs.arg1);
+		}
 	} else {
 
+			fprintf(stdout, "[monitor - got mapping] close(%d) \n", (int) regs.arg1);
 		regs.retval = lind_close(regs.arg1);
 		fprintf(stdout, "[monitor] close(%d) = %d \n", (int) regs.arg1,
 				(int) regs.retval);
@@ -223,7 +224,7 @@ void monitor_fstat()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_fstat(regs.arg1, &st);
 		set_mem(regs.arg2, &st, sizeof(st));
 		fprintf(stdout, "[monitor] fstat(%d) = %d \n", (int) regs.arg1,
@@ -240,7 +241,7 @@ void monitor_fstatfs()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_fstatfs(regs.arg1, &stfs);
 		set_mem(regs.arg2, &stfs, sizeof(stfs));
 		set_args(&regs);
@@ -598,7 +599,6 @@ void monitor_socket()
 	if (entering) {
 		entering = 0;
 	} else {
-		if (regs.arg1 == AF_INET) {
 			int lind_fd = lind_socket(regs.arg1, regs.arg2, regs.arg3);
 
 			if (lind_fd >= 0) {
@@ -610,7 +610,6 @@ void monitor_socket()
 			set_args(&regs);
 			fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d \n", lind_fd,
 					(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
-		}
 		entering = 1;
 	}
 }
