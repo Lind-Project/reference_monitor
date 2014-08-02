@@ -19,7 +19,6 @@ void monitor_ns()
 
 		set_args(&regs);
 		entering = 1;
-
 	}
 }
 
@@ -78,16 +77,17 @@ void monitor_close()
 		entering = 0;
 		if ((int32_t) regs.arg1 >= 0) {
 	//		regs.arg1 = get_mapping(regs.arg1);
+			regs.retval = lind_close(regs.arg1);
+				fprintf(stdout, "[monitor] close(%d) = %d \n", (int) regs.arg1,
+						(int) regs.retval);
+
 		}
 	} else {
 
-			fprintf(stdout, "[monitor - got mapping] close(%d) \n", (int) regs.arg1);
-		regs.retval = lind_close(regs.arg1);
-		fprintf(stdout, "[monitor] close(%d) = %d \n", (int) regs.arg1,
-				(int) regs.retval);
-		entering = 1;
+		//fprintf(stdout, "[monitor - got mapping] close(%d) \n", (int) regs.arg1);
+			entering = 1;
 	}
-	set_args(&regs);
+	//set_args(&regs);
 }
 
 void monitor_getuid()
@@ -107,7 +107,6 @@ void monitor_read()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
 		void *buff = malloc(regs.arg3);
 		regs.retval = lind_read(regs.arg1, buff, regs.arg3);
 		set_mem(regs.arg2, buff, regs.arg3);
@@ -168,7 +167,6 @@ void monitor_access()
 	if (entering) {
 		entering = 0;
 	} else {
-
 		char *path = get_path(regs.arg1);
 		int lind_fd = lind_access(path, regs.arg2);
 		if (lind_fd >= 0) {
@@ -231,6 +229,8 @@ void monitor_fstat()
 				(int) regs.retval);
 		set_args(&regs);
 		entering = 1;
+		fprintf(stdout, "[monitor] fstat(%d) = %d \n", (int) regs.arg1,
+				(int) regs.retval);
 	}
 }
 
@@ -317,12 +317,12 @@ void monitor_write()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_write(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3);
 
 		set_args(&regs);
-		fprintf(stdout, "write(%d, 0x%lx[], %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] write(%d, 0x%lx[], %d) = %d \n", (int) regs.arg1,
 				(long) regs.arg2, (int) regs.arg3,
 				(int) regs.retval);
 		entering = 1;
@@ -365,7 +365,7 @@ void monitor_fcntl()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_fcntl(regs.arg1, regs.arg2);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] fcntl(%d, %d) = %d \n", (int) regs.arg1,
@@ -393,7 +393,7 @@ void monitor_shutdown()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_shutdown(regs.arg1, regs.arg2);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] shutdown(%d, %d) = %d \n", (int) regs.arg1,
@@ -502,7 +502,7 @@ void monitor_flock()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_flock(regs.arg1, regs.arg2);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] flock(%d, %d) = %d \n", (int) regs.arg1,
@@ -535,7 +535,7 @@ void monitor_getdents()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_getdents(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3);
 		set_args(&regs);
@@ -551,7 +551,7 @@ void monitor_lseek()
 		entering = 0;
 	} else {
 
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_lseek(regs.arg1, regs.arg2, regs.arg3);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] lseek(%u, %d, %d) = %d \n", (int) regs.arg1,
@@ -566,11 +566,11 @@ void monitor_pwritev()
 		entering = 0;
 	} else {
 
-		int lind_fd = get_mapping(regs.arg1);
-		regs.retval = lind_pwrite(lind_fd, get_mem(regs.arg2, regs.arg3),
+		//int lind_fd = get_mapping(regs.arg1);
+		regs.retval = lind_pwrite(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3, regs.arg4);
 		set_args(&regs);
-		fprintf(stdout, "pwritev(%d, 0x%lx[], %d) = %d \n", lind_fd,
+		fprintf(stdout, "[monitor] pwritev(%d, 0x%lx[], %d) = %d \n", (int)regs.arg1,
 				(long) regs.arg2, (int) regs.arg4,
 				(int) regs.retval);
 		entering = 1;
@@ -586,7 +586,7 @@ void monitor_pread64()
 		regs.retval = lind_pread(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3, regs.arg4);
 		set_args(&regs);
-		fprintf(stdout, "pread64(%d, 0x%lx[], %d) = %d \n",
+		fprintf(stdout, "[monitor] pread64(%d, 0x%lx[], %d) = %d \n",
 				(int) regs.arg1, (long) regs.arg2,
 				(int) regs.arg4, (int) regs.retval);
 		entering = 1;
@@ -619,7 +619,7 @@ void monitor_bind()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_bind(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
@@ -634,9 +634,8 @@ void monitor_connect()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_connect(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
@@ -692,7 +691,7 @@ void monitor_recvfrom()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		char *var = malloc(regs.arg3);
 		struct lind_sockaddr * buff = malloc(regs.arg6);
 
@@ -799,10 +798,9 @@ void monitor_getsockname()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
 		struct lind_sockaddr *buff = malloc(regs.arg3);
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_getsockname(regs.arg1, buff,
 					(lind_socklen_t*) regs.arg3);
 		set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
@@ -821,7 +819,7 @@ void monitor_getsockopt()
 
 	} else {
 		struct lind_sockaddr *buff = malloc(regs.arg2);
-		regs.arg1 = get_mapping(regs.arg1);
+//		regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_getsockopt(regs.arg1, regs.arg2, regs.arg3, buff,
 				(lind_socklen_t*) regs.arg5);
 		set_mem(regs.arg4, buff, sizeof(struct lind_sockaddr));
@@ -838,7 +836,7 @@ void monitor_setsockopt()
 	if (entering) {
 		entering = 0;
 	} else {
-		regs.arg1 = get_mapping(regs.arg1);
+		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_setsockopt(regs.arg1, regs.arg2, regs.arg3,
 				get_mem(regs.arg4, sizeof(struct lind_sockaddr)), regs.arg5);
 		set_args(&regs);
@@ -982,10 +980,9 @@ void monitor_arch_prctl()
 	if (entering) {
 		entering = 0;
 	} else {
-
 		if (((int32_t) regs.arg5) >= 0) {
-			regs.arg5 = get_mapping(regs.arg5);
-			set_args(&regs);
+			//regs.arg5 = get_mapping(regs.arg5);
+			//set_args(&regs);
 			fprintf(stdout, "[monitor] arch_prctl() =  %d  \n",
 					(int) regs.retval);
 		}
@@ -998,10 +995,10 @@ void monitor_mmap()
 	if (entering) {
 		entering = 0;
 	} else {
-		if (((int32_t) regs.arg5) >= 0) {
-			regs.arg5 = get_mapping(regs.arg5);
-			set_args(&regs);
-			fprintf(stdout, "[monitor] mmap() = 0x%jx  \n", regs.retval);
+		if ((int) regs.arg5 >= 0) {
+			//regs.arg5 = get_mapping(regs.arg5);
+			//set_args(&regs);
+			fprintf(stdout, "[monitor] mmap(%d) = 0x%jx \n", (int) regs.arg5, regs.retval);
 		}
 		entering = 1;
 	}
@@ -1040,23 +1037,14 @@ void monitor_brk()
 
 void monitor_exit_group()
 {
-	if (entering) {
-		entering = 0;
-	} else {
-		fprintf(stdout, "[monitor] exit_group() = %d \n", (int) regs.retval);
-		entering = 1;
-	}
+		fprintf(stdout, "[monitor] exit_group(%d) \n",(int) regs.arg1);
 }
 
 void monitor_exit()
 {
-	if (entering) {
-		entering = 0;
-	} else {
-		fprintf(stdout, "[monitor] exit() = %d \n", (int) regs.retval);
-		entering = 1;
-	}
+		fprintf(stdout, "[monitor] exit(%d) \n", (int) regs.arg1);
 }
+
 void monitor_tgkill()
 {
 	if (entering) {
@@ -1081,7 +1069,6 @@ void monitor_gscall(int call_no)
 
 int main(int argc, char** argv)
 {
-
 	/* check the command line arguments to see if a process is defined for trace */
 	if (argc <= 0) {
 		fprintf(stderr, "Usage %s <program> <options>\n", argv[0]);
@@ -1097,7 +1084,6 @@ int main(int argc, char** argv)
 /* initialize a process to be traced */
 void init_ptrace(int argc, char** argv)
 {
-
 	char ** argv1 = malloc(sizeof(char*) * argc);
 	memcpy(argv1, argv + 1, sizeof(char*) * (argc - 1));
 	argv1[argc - 1] = NULL;
@@ -1514,7 +1500,6 @@ int get_syscall_num(char *name)
 /* return the arguments of a syscall by ptrace */
 void get_args(struct syscall_args *args)
 {
-
 	if (ptrace(PTRACE_GETREGS, tracee, 0, &args->user) < 0) {
 		fprintf(stderr, "ptrace could not get the register arguments. \n");
 		return;
