@@ -131,6 +131,7 @@ void *test_recvfrom();
 void *test_sendmsg();
 void *test_recvmsg();
 void test_openat(char *path);
+void test_mmap(char* path);
 
 
 const char *get_testfiles_dir()

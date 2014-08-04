@@ -29,8 +29,8 @@
 
 static struct syscall_args {
 	int64_t syscall;
-	uint64_t arg1, arg2, arg3, arg4, arg5, arg6;
-	int64_t retval;
+	long arg1, arg2, arg3, arg4, arg5, arg6;
+	long long retval;
 	struct user user;
 } regs;
 

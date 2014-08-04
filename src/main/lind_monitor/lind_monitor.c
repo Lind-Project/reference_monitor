@@ -8,6 +8,8 @@
 #include "lind_monitor.h"
 #include "../platform/lind_platform.h"
 
+#include <sys/mman.h>
+
 void monitor_ns()
 {
 	if (entering) {
@@ -225,12 +227,10 @@ void monitor_fstat()
 		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_fstat(regs.arg1, &st);
 		set_mem(regs.arg2, &st, sizeof(st));
-		fprintf(stdout, "[monitor] fstat(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] fstat(%d, {st_mode = %d, st_size = %d}) = %d \n", (int) regs.arg1, (int) st.st_mode, (int) st.st_size,
 				(int) regs.retval);
 		set_args(&regs);
 		entering = 1;
-		fprintf(stdout, "[monitor] fstat(%d) = %d \n", (int) regs.arg1,
-				(int) regs.retval);
 	}
 }
 
@@ -995,10 +995,19 @@ void monitor_mmap()
 	if (entering) {
 		entering = 0;
 	} else {
-		if ((int) regs.arg5 >= 0) {
-			//regs.arg5 = get_mapping(regs.arg5);
-			//set_args(&regs);
-			fprintf(stdout, "[monitor] mmap(%d) = 0x%jx \n", (int) regs.arg5, regs.retval);
+		if (regs.arg5 >=0){
+			void * add = regs.retval;
+
+			if (!regs.arg1) {
+				fprintf(stdout, "[monitor] mmap(NULL, %lu, %d, %d, %d, %#llx) = 0x%lx \n",
+					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
+					   (long unsigned int) regs.retval);
+			}
+		 else {
+				fprintf(stdout, "[monitor] mmap(0x%lx, %lu, %d, %d, %d, %#llx) = 0x%lx \n", (long) regs.arg1,
+					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
+					   (long unsigned int) regs.retval);
+		 }
 		}
 		entering = 1;
 	}
@@ -1009,7 +1018,7 @@ void monitor_munmap()
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[monitor] munmap() = %d  \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] munmap(%#lx, %lu) = %d  \n", (long) regs.arg1, (long) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -1020,7 +1029,7 @@ void monitor_mprotect()
 		entering = 0;
 
 	} else {
-		fprintf(stdout, "[monitor] mprotect() = %d  \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] mprotect(%#lx, %lu, %d) = %d  \n", (long) regs.arg1, (long) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -1030,7 +1039,7 @@ void monitor_brk()
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[monitor] brk() = 0x%jx  \n",  regs.retval);
+		fprintf(stdout, "[monitor] brk(%#lx) = 0x%llx  \n", regs.arg1, regs.retval);
 		entering = 1;
 	}
 }
@@ -1061,7 +1070,7 @@ void monitor_gscall(int call_no)
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[monitor] %s() = %d  \n", syscall_names[call_no], (int) regs.retval);
+		fprintf(stdout, "[Kernel] %s() = %d  \n", syscall_names[call_no], (int) regs.retval);
 		entering = 1;
 	}
 }

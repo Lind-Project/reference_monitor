@@ -812,7 +812,7 @@ int get_mapping(int fd){
 	int retval = -1;
 	args = Py_BuildValue("(i)", fd);
 
-	result = CallPythonFunc(context, "map_lind_to_native", args);
+	result = CallPythonFunc(context, "get_lind_map_to_native", args);
 
 	if (result == NULL){
 		fprintf(stderr, "No mapping found in Lind for fd %d \n", fd);
