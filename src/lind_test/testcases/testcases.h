@@ -22,7 +22,7 @@
 #define UDP_TEST_PORT 			13006
 #define WRONG_PORT 				10000000003
 #define WRONG_ADDRESS 			10000000003
-#define SERVER_ADDR     		"128.122.119.209"     /* NYU server */
+#define SERVER_ADDR     		"128.122.119.202"     /* NYU server */
 #define SERVER_URL     			"http://www.google.com"     /* Google server */
 
 #define MAXBUF          4096

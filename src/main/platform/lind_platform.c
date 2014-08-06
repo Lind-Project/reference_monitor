@@ -609,6 +609,7 @@ ret = lind_write(fd, buf, count);
 lind_lseek(fd, cur_pos, SEEK_SET);
 return ret;
 }
+
 int lind_getifaddrs(int ifaddrs_buf_siz, void *ifaddrs) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getifaddrs, "[i]", ifaddrs_buf_siz),
@@ -708,7 +709,6 @@ ssize_t lind_sendmsg(int sockfd, const struct lind_msghdr *msg, int flags) {
 					msg->msg_name, msg->msg_namelen, final_message,
 					msg->msg_iovlen, msg->msg_control, msg->msg_controllen,
 					msg->msg_flags, flags), 0);
-
 }
 
 /**
@@ -806,6 +806,8 @@ void add_mapping(int src, int dest){
 }
 
 int get_mapping(int fd){
+
+
 
 	PyObject* args = NULL;
 	PyObject* result = NULL;

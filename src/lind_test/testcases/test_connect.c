@@ -17,7 +17,7 @@ void test_connect()
 	int sockfd;
 	struct sockaddr_in dest;
 
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		fprintf(stderr, "socket() = %d error \n", sockfd);
 		return;
 	}
@@ -35,7 +35,7 @@ void test_connect()
 		return;
 	}
 
-	if ((ret=close(sockfd))!= 0){
+	if ((ret = close(sockfd)) != 0){
 		 fprintf(stderr, "close() = %d error \n", ret);
   	     return;
  	}

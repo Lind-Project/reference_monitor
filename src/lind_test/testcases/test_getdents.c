@@ -35,6 +35,8 @@ void test_getdents(char *path)
 		int bpos;
 		char d_type;
 
+
+        fprintf(stdout, "'FIRST!!!\n");
 		fd = open(path, O_RDONLY | O_DIRECTORY);
 
 		if (fd == -1) {
@@ -42,8 +44,11 @@ void test_getdents(char *path)
 			return;
 		}
 
+		  fprintf(stdout, "'BEFORE!!!\n");
+
 		for ( ; ; ) {
 		  nread = syscall(SYS_getdents, fd, buf, BUF_SIZE);
+		  fprintf(stdout, "HERE!!!\n");
 
 		  if (nread == -1) {
 				fprintf(stderr, "getdents(%s) error \n", path);

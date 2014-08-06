@@ -77,19 +77,18 @@ void monitor_close()
 {
 	if (entering) {
 		entering = 0;
+	} else {
 		if ((int32_t) regs.arg1 >= 0) {
-	//		regs.arg1 = get_mapping(regs.arg1);
 			regs.retval = lind_close(regs.arg1);
-				fprintf(stdout, "[monitor] close(%d) = %d \n", (int) regs.arg1,
+			set_args(&regs);
+			fprintf(stdout, "[monitor] close(%d) = %d \n", (int) regs.arg1,
 						(int) regs.retval);
 
 		}
-	} else {
 
-		//fprintf(stdout, "[monitor - got mapping] close(%d) \n", (int) regs.arg1);
 			entering = 1;
 	}
-	//set_args(&regs);
+
 }
 
 void monitor_getuid()
@@ -134,10 +133,11 @@ void monitor_open()
 		} else {
 			regs.retval = -1;
 		}
-
 		set_args(&regs);
+
 		fprintf(stdout, "[monitor] open(%s, %d, %d) = %d\n", path,
 				(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
+
 		entering = 1;
 	}
 }
@@ -224,7 +224,6 @@ void monitor_fstat()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_fstat(regs.arg1, &st);
 		set_mem(regs.arg2, &st, sizeof(st));
 		fprintf(stdout, "[monitor] fstat(%d, {st_mode = %d, st_size = %d}) = %d \n", (int) regs.arg1, (int) st.st_mode, (int) st.st_size,
@@ -241,7 +240,6 @@ void monitor_fstatfs()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_fstatfs(regs.arg1, &stfs);
 		set_mem(regs.arg2, &stfs, sizeof(stfs));
 		set_args(&regs);
@@ -317,14 +315,13 @@ void monitor_write()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_write(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3);
 
 		set_args(&regs);
 		fprintf(stdout, "[monitor] write(%d, 0x%lx[], %d) = %d \n", (int) regs.arg1,
-				(long) regs.arg2, (int) regs.arg3,
-				(int) regs.retval);
+			   (long) regs.arg2, (int) regs.arg3,
+			   (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -365,7 +362,6 @@ void monitor_fcntl()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_fcntl(regs.arg1, regs.arg2);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] fcntl(%d, %d) = %d \n", (int) regs.arg1,
@@ -393,7 +389,6 @@ void monitor_shutdown()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_shutdown(regs.arg1, regs.arg2);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] shutdown(%d, %d) = %d \n", (int) regs.arg1,
@@ -482,7 +477,6 @@ void monitor_dup3()
 	if (entering) {
 		entering = 0;
 	} else {
-
 		int lind_fd = lind_dup3(regs.arg1, regs.arg2, regs.arg3);
 		if (lind_fd >= 0) {
 			add_mapping(regs.retval, lind_fd);
@@ -502,7 +496,6 @@ void monitor_flock()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_flock(regs.arg1, regs.arg2);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] flock(%d, %d) = %d \n", (int) regs.arg1,
@@ -535,12 +528,11 @@ void monitor_getdents()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_getdents(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] getdents(%d, %d) = %d \n", (int) regs.arg1,
-				(int) regs.arg3, (int) regs.retval);
+		fprintf(stdout, "[monitor] getdents(%u, %u) = %d \n", (unsigned int) regs.arg1,
+				(unsigned int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -550,8 +542,6 @@ void monitor_lseek()
 	if (entering) {
 		entering = 0;
 	} else {
-
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_lseek(regs.arg1, regs.arg2, regs.arg3);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] lseek(%u, %d, %d) = %d \n", (int) regs.arg1,
@@ -582,7 +572,6 @@ void monitor_pread64()
 	if (entering) {
 		entering = 0;
 	} else {
-
 		regs.retval = lind_pread(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3, regs.arg4);
 		set_args(&regs);
@@ -608,7 +597,7 @@ void monitor_socket()
 				regs.retval = -1;
 			}
 			set_args(&regs);
-			fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d \n", lind_fd,
+			fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d \n", (int) regs.arg1,
 					(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
@@ -619,7 +608,6 @@ void monitor_bind()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_bind(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
@@ -635,7 +623,6 @@ void monitor_connect()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_connect(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
@@ -691,12 +678,10 @@ void monitor_recvfrom()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		char *var = malloc(regs.arg3);
 		struct lind_sockaddr * buff = malloc(regs.arg6);
 
-		regs.retval = lind_recvfrom(regs.arg1, var, regs.arg3, regs.arg4, buff,
-						regs.arg6);
+		regs.retval = lind_recvfrom(regs.arg1, var, regs.arg3, regs.arg4, buff, regs.arg6);
 
 		set_mem(regs.arg2, var, regs.arg3);
 		set_mem(regs.arg5, buff, regs.arg6);
@@ -735,8 +720,6 @@ void monitor_recvmsg()
 			msg->msg_name = malloc(msg->msg_namelen);
 			//msg->msg_control = get_mem(msg->msg_control, msg->msg_controllen);
 			msg->msg_control = malloc(msg->msg_controllen);
-
-			regs.arg1 = get_mapping(regs.arg1);
 
 			regs.retval = lind_recvmsg(regs.arg1, msg, regs.arg3);
 
@@ -779,10 +762,8 @@ void monitor_sendmsg()
 		msg->msg_name = malloc(msg->msg_namelen);
 		//msg->msg_control = get_mem(msg->msg_control, msg->msg_controllen);
 		msg->msg_control = malloc(msg->msg_controllen);
-
-		regs.arg1 = get_mapping(regs.arg1);
-
 		regs.retval = lind_sendmsg(regs.arg1, msg, regs.arg3);
+
 		free(msg);
 		free(iovs);
 		free(iovs_orig);
@@ -800,7 +781,6 @@ void monitor_getsockname()
 		entering = 0;
 	} else {
 		struct lind_sockaddr *buff = malloc(regs.arg3);
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_getsockname(regs.arg1, buff,
 					(lind_socklen_t*) regs.arg3);
 		set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
@@ -816,10 +796,8 @@ void monitor_getsockopt()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
 		struct lind_sockaddr *buff = malloc(regs.arg2);
-//		regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_getsockopt(regs.arg1, regs.arg2, regs.arg3, buff,
 				(lind_socklen_t*) regs.arg5);
 		set_mem(regs.arg4, buff, sizeof(struct lind_sockaddr));
@@ -836,7 +814,6 @@ void monitor_setsockopt()
 	if (entering) {
 		entering = 0;
 	} else {
-		//regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_setsockopt(regs.arg1, regs.arg2, regs.arg3,
 				get_mem(regs.arg4, sizeof(struct lind_sockaddr)), regs.arg5);
 		set_args(&regs);
@@ -981,12 +958,10 @@ void monitor_arch_prctl()
 		entering = 0;
 	} else {
 		if (((int32_t) regs.arg5) >= 0) {
-			//regs.arg5 = get_mapping(regs.arg5);
-			//set_args(&regs);
 			fprintf(stdout, "[monitor] arch_prctl() =  %d  \n",
 					(int) regs.retval);
 		}
-	entering = 1;
+		entering = 1;
 	}
 }
 
@@ -994,20 +969,20 @@ void monitor_mmap()
 {
 	if (entering) {
 		entering = 0;
-	} else {
-		if (regs.arg5 >=0){
-			void * add = regs.retval;
 
-			if (!regs.arg1) {
+	if (regs.arg5 >= 0){
+		regs.arg5 = get_mapping(regs.arg5);
+		set_args(&regs);
+		}
+	} else {
+		if (!regs.arg1) {
 				fprintf(stdout, "[monitor] mmap(NULL, %lu, %d, %d, %d, %#llx) = 0x%lx \n",
 					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
 					   (long unsigned int) regs.retval);
-			}
-		 else {
+			} else {
 				fprintf(stdout, "[monitor] mmap(0x%lx, %lu, %d, %d, %d, %#llx) = 0x%lx \n", (long) regs.arg1,
 					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
 					   (long unsigned int) regs.retval);
-		 }
 		}
 		entering = 1;
 	}
@@ -1027,9 +1002,8 @@ void monitor_mprotect()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
-		fprintf(stdout, "[monitor] mprotect(%#lx, %lu, %d) = %d  \n", (long) regs.arg1, (long) regs.arg2, (int) regs.retval);
+		fprintf(stdout, "[monitor] mprotect(%#lx, %lu, %d) = %d  \n", (long) regs.arg1, (long) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -1046,12 +1020,12 @@ void monitor_brk()
 
 void monitor_exit_group()
 {
-		fprintf(stdout, "[monitor] exit_group(%d) \n",(int) regs.arg1);
+	fprintf(stdout, "[monitor] exit_group(%d) \n",(int) regs.arg1);
 }
 
 void monitor_exit()
 {
-		fprintf(stdout, "[monitor] exit(%d) \n", (int) regs.arg1);
+	fprintf(stdout, "[monitor] exit(%d) \n", (int) regs.arg1);
 }
 
 void monitor_tgkill()

@@ -1,6 +1,6 @@
 INCLUDE = /usr/include
 CC = gcc
-CFLAGS = -g -Wall -O3 $(IFLAGS)  `python-config --includes` --std=gnu99
+CFLAGS = -g -Wall $(IFLAGS)  `python-config --includes` --std=gnu99
 LFLAGS = -lpthread  `python-config --libs`
 IFLAGS = -I$(INCLUDE) -I/usr/repy/repy 
 
