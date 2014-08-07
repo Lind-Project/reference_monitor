@@ -529,7 +529,7 @@ void monitor_getdents()
 		entering = 0;
 	} else {
 
-		char* buf = malloc (sizeof(char) * regs.arg3);
+		char *buf = malloc (sizeof(char) * regs.arg3);
 		regs.retval = lind_getdents(regs.arg1, buf,
 				regs.arg3);
 		set_mem(regs.arg2, buf, regs.arg3);

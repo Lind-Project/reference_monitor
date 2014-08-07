@@ -565,7 +565,7 @@ int lind_select(int nfds, fd_set * readfds, fd_set * writefds,
 		Py_INCREF(timeValObj);
 	}
 	retval = ParseResponse(
-			MakeLindSysCall(LIND_safe_net_shutdown, "[iOOOO]", nfds, readFdObj,
+			MakeLindSysCall(LIND_safe_net_select, "[iOOOO]", nfds, readFdObj,
 					writeFdObj, exceptFdObj, timeValObj), 1, &result,
 			sizeof(result));
 	Py_XDECREF(readFdObj);
@@ -590,24 +590,25 @@ int lind_select(int nfds, fd_set * readfds, fd_set * writefds,
 	return retval;
 }
 
-ssize_t lind_pread(int fd, void* buf, int count, off_t offset) {
-off_t cur_pos = 0;
-int ret = 0;
-cur_pos = lind_lseek(fd, 0, SEEK_CUR);
-lind_lseek(fd, offset, SEEK_SET);
-ret = lind_read(fd, buf, count);
-lind_lseek(fd, cur_pos, SEEK_SET);
-return ret;
+ssize_t lind_pread(int fd, void* buf, int count, off_t offset)
+{
+	off_t cur_pos = 0;
+	int ret = 0;
+	cur_pos = lind_lseek(fd, 0, SEEK_CUR);
+	lind_lseek(fd, offset, SEEK_SET);
+	ret = lind_read(fd, buf, count);
+	lind_lseek(fd, cur_pos, SEEK_SET);
+	return ret;
 }
 
 ssize_t lind_pwrite(int fd, const void *buf, int count, off_t offset) {
-off_t cur_pos = 0;
-int ret = 0;
-cur_pos = lind_lseek(fd, 0, SEEK_CUR);
-lind_lseek(fd, offset, SEEK_SET);
-ret = lind_write(fd, buf, count);
-lind_lseek(fd, cur_pos, SEEK_SET);
-return ret;
+	off_t cur_pos = 0;
+	int ret = 0;
+	cur_pos = lind_lseek(fd, 0, SEEK_CUR);
+	lind_lseek(fd, offset, SEEK_SET);
+	ret = lind_write(fd, buf, count);
+	lind_lseek(fd, cur_pos, SEEK_SET);
+	return ret;
 }
 
 int lind_getifaddrs(int ifaddrs_buf_siz, void *ifaddrs) {
