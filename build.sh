@@ -1,5 +1,6 @@
 #!/bin/bash
 
+clear
 
 MAKEFILE_DIR=./src/main/
 TESTCASES_DIR=./src/lind_test/

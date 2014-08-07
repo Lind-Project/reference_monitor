@@ -21,13 +21,12 @@ struct linux_dirent {
 
 int main(int argc, char **argv)
 {
-	char *path = get_testfiles_dir();
-	test_getdents(path);
+	test_getdents(get_testfiles_dir());
 
 	return 0;
 }
 
-void test_getdents(char *path)
+void test_getdents(const char *path)
 {
 		int fd, nread;
 		char buf[BUF_SIZE];
@@ -54,7 +53,6 @@ void test_getdents(char *path)
 				fprintf(stderr, "getdents(%s) error \n", path);
 				return;
 		  }
-
 
 		  if (nread == 0)
 			  break;

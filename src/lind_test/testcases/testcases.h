@@ -115,7 +115,7 @@ void test_dup2();
 void test_dup3();
 void test_readp64(char *path);
 void test_pwritev(char *path);
-void test_getdents(char *path);
+void test_getdents(const char *path);
 void test_socketpair();
 void *test_setsockopt();
 void test_setgroups();
