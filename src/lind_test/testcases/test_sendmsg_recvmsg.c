@@ -48,7 +48,7 @@ void * test_recvmsg() {
 
 	if (serversd < 0) {
 		fprintf(stderr, "socket() failed \n");
-		return;
+		return NULL;
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -61,7 +61,7 @@ void * test_recvmsg() {
 	if (ret < 0) {
 		fprintf(stderr, "bind() failed \n");
 		close(serversd);
-		return;
+		return NULL;
 	}
 
 	ret = listen(serversd, 5);
@@ -74,9 +74,9 @@ void * test_recvmsg() {
 	ret = accept(serversd, NULL, NULL);
 
 	if (ret < 0) {
-			fprintf(stderr, "accept() failed \n");
-			close(serversd);
-			return;
+		fprintf(stderr, "accept() failed \n");
+		close(serversd);
+		return NULL;
 		}
 
 	memset(&msg, 0, sizeof(msg));
@@ -84,24 +84,28 @@ void * test_recvmsg() {
 
 	ret = recvmsg(serversd, &msg, 0);
 	if (ret < 0) {
-			fprintf(stderr, "recvmsg() failed \n");
-			close(serversd);
-		}
+		fprintf(stderr, "recvmsg() failed \n");
+		close(serversd);
+		return NULL;
+	}
 
 	if (close(serversd) != 0){
-			fprintf(stderr, "close() error \n");
-		}
+		fprintf(stderr, "close() error \n");
+		return NULL;
+	}
+
+	 return (void *) 1;
 }
 
 void *test_sendmsg() {
-
-	int ret, len;
 	int clientsd;
 
 	char buffer[MAXBUF];
 
 	struct iovec iov[1];
 	struct msghdr msg;
+
+	clientsd = socket(AF_INET, SOCK_STREAM, 0);
 
 	memset(&msg, 0, sizeof(msg));
 	memset(iov, 0, sizeof(iov));
@@ -110,15 +114,18 @@ void *test_sendmsg() {
 	msg.msg_iov = iov;
 	msg.msg_iovlen = 1;
 
-	ret = sendmsg(clientsd, &msg, 0);
+	int ret = sendmsg(clientsd, &msg, 0);
 
 	if (ret < 0) {
 		fprintf(stderr, "sendmsg() failed \n");
 		close(clientsd);
+		return NULL;
 	}
 
 	if (close(clientsd) != 0){
-			fprintf(stderr, "close() error \n");
+		fprintf(stderr, "close() error \n");
+		return NULL;
 	}
 
+	 return (void *) 1;
 }

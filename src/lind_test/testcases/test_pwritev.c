@@ -17,15 +17,15 @@ int main(int argc, char **argv)
 void test_pwritev(char *path)
 {
 
-   ssize_t nwritten;
-   int ret, rc, fd;
+
+   int fd;
    off_t  off = 10;
 
    char *str0 = "Lind";
    char *str1 = "pwritev () test \n";
    struct iovec iov[2];
 
-   if ((fd = open64(path, O_WRONLY)) < 0){
+   if ((fd = open(path, O_WRONLY)) < 0){
 	   fprintf(stderr,"open64(%s) error \n", path);
 	   return;
    }
@@ -36,7 +36,8 @@ void test_pwritev(char *path)
    iov[1].iov_base = str1;
    iov[1].iov_len = strlen(str1);
 
-   nwritten = pwritev(fd, iov, 2, off);
+   ssize_t nwritten = pwritev(fd, iov, 2, off);
+   fprintf(stdout, "nwritten = %d", (int) nwritten);
 
    if (close(fd)!= 0){
        fprintf(stderr, "close() error \n");

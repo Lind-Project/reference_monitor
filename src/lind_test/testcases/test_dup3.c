@@ -1,12 +1,11 @@
 /*
- * test_dup2.c
+ * test_dup3.c
  *
  *  Created on: Jun 11, 2014
  *      Author:  Ali Gholami
  */
 
 #include "testcases.h"
-
 
 int main(int argc, char **argv)
 {
@@ -32,7 +31,7 @@ void test_dup3()
 	if (pid ==  0) {
 		close(fds[1]);
 		/* Connect the read end of the pipe to standard input.  */
-		dup3(fds[0], STDIN_FILENO, FD_CLOEXEC);
+		syscall (SYS_dup3, fds[0], STDIN_FILENO, FD_CLOEXEC);
 		/* Replace the child process with the "sort" program.  */
 		execlp("sort", "sort", NULL);
 	} else {

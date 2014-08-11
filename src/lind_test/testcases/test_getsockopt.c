@@ -19,7 +19,9 @@ void test_getsockopt()
 
 	/* takedn from https://support.sas.com/documentation/onlinedoc/sasc/doc750/html/lr2/zsockopt.htm */
 
-	int optlen, gs, socktype, sockfd;
+	int gs, socktype, sockfd;
+
+	socklen_t optlen;
 
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -30,7 +32,7 @@ void test_getsockopt()
 
 	/* Ask for the socket type. */
 	optlen = sizeof(socktype);
-	gs = getsockopt(sockfd, SOL_SOCKET, SO_TYPE, &socktype, &optlen);
+	gs = getsockopt(sockfd, SOL_SOCKET, SO_TYPE, (char *) &socktype, &optlen);
 
 	if (gs == -1) {
 		fprintf(stderr, "getsockopt() error \n");
@@ -54,7 +56,7 @@ void test_getsockopt()
 	}
 
 	if (close(sockfd)!= 0){
-	       fprintf(stderr, "close() error \n");
-	   	   return;
+	    fprintf(stderr, "close() error \n");
+	   	return;
 	}
 }

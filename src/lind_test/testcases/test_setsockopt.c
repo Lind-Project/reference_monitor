@@ -55,22 +55,22 @@ void *test_setsockopt() {
 
 	if (sockfd < 0) {
 		fprintf(stderr, "socket() error \n");
-		return;
+		return NULL;
 	}
 
 	if(setsockopt(sockfd, SOL_TCP, TCP_DEFER_ACCEPT, &keepcnt, sizeof(int)) < 0 ){
 		fprintf(stderr, "setsockopt failed \n");
-		return;
+		return NULL;
 	}
 
 	if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE, &keepidle, sizeof(int)) <0){
 		fprintf(stderr, "setsockopt failed \n");
-		return;
+		return NULL;
 	}
 
 	if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL, &keepintvl, sizeof(int)) <0){
 		fprintf(stderr, "setsockopt failed \n");
-		return;
+		return NULL;
 	}
 
 
@@ -129,6 +129,7 @@ void *test_setsockopt() {
 	close(sd2);
 	close(sockfd);
 
+	return (void *) 1;
 }
 
 void * test_client()
@@ -149,22 +150,22 @@ void * test_client()
 
 	if (sockfd < 0) {
 		fprintf(stderr, "client - socket() error \n");
-		return;
+		return NULL;
 	}
 
 	if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT, &keepcnt, sizeof(int)) < 0 ){
 		fprintf(stderr, "setsockopt failed \n");
-		return;
+		return NULL;
 	}
 
 	if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE, &keepidle, sizeof(int)) <0){
 		fprintf(stderr, "setsockopt failed \n");
-		return;
+		return NULL;
 	}
 
 	if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL, &keepintvl, sizeof(int)) <0){
 		fprintf(stderr, "setsockopt failed \n");
-		return;
+		return NULL;
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -196,6 +197,8 @@ void * test_client()
 	fprintf(stdout, "%d bytes received \n", len);
 
 	 if (close(sockfd)!= 0){
-		       fprintf(stderr, "close() error \n");
-		}
+		fprintf(stderr, "close() error \n");
+		return NULL;
+	 }
+	 return (void *) 1;
 }

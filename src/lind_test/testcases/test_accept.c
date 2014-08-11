@@ -82,6 +82,7 @@ void * test_accept()
 
 	close(sd2);
 	close(sd1);
+	return (void *) 1;
 }
 
 void *test_accept_client()
@@ -114,4 +115,5 @@ void *test_accept_client()
 
 	fprintf(stdout, "connection accepted \n");
 	close(sockfd);
+	return (void *) 1;
 }

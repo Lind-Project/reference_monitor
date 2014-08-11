@@ -808,8 +808,6 @@ void add_mapping(int src, int dest){
 
 int get_mapping(int fd){
 
-
-
 	PyObject* args = NULL;
 	PyObject* result = NULL;
 	int retval = -1;

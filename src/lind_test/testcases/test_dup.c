@@ -30,7 +30,12 @@ void test_dup(char *path)
 		return;
 	}
 
-	dup(fd);
+	int ret = dup(fd);
+
+	if (ret < 0){
+		fprintf(stderr, "dup() error \n");
+		return;
+	}
 
 	if (close(fd) != 0) {
 		fprintf(stderr, "close() error \n");

@@ -63,7 +63,7 @@ void * test_recvfrom()
 
 	if (nread == -1) {
 		fprintf(stderr, "recvfrom() error \n");
-		}
+	}
 
 	nread = sendto(sockfd, mesg, nread, 0, (struct sockaddr *) &client_add,
 			sizeof(client_add));
@@ -78,7 +78,10 @@ void * test_recvfrom()
 
 	if (close(sockfd) != 0) {
 		fprintf(stderr, "close() error \n");
+		return NULL;
 	}
+
+	 return (void *) 1;
 }
 
 void *test_sendto()
@@ -102,12 +105,14 @@ void *test_sendto()
 
 	if (nread == -1) {
 		fprintf(stderr, "sendto() error \n");
+		return NULL;
 	}
 
 	nread = recvfrom(sockfd, recv_msg, MAXBUF, 0, NULL, NULL);
 
 	if (nread == -1) {
 		fprintf(stderr, "recvfrom() error \n");
+		return NULL;
 	}
 
 	recv_msg[nread] = '\0';
@@ -116,5 +121,8 @@ void *test_sendto()
 
 	if (close(sockfd) != 0) {
 		fprintf(stderr, "close() error \n");
+		return NULL;
 	}
+
+	 return (void *) 1;
 }

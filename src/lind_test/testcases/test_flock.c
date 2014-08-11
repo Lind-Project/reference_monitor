@@ -46,7 +46,7 @@ void test_flock(char *path)
 	bytes_written = write(fd, buf, nbytes);
 
 	if (bytes_written < 0 ){
-		fprintf(stderr, "write() error \n", path);
+		fprintf(stderr, "write(%s) error \n", path);
 		return;
 	}
 

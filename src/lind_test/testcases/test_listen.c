@@ -65,7 +65,7 @@ void * test_listen() {
 	if (rc < 0) {
 		fprintf(stderr, "bind() error \n");
 		close(sd1);
-		return;
+		return NULL;
 	}
 
 	rc = listen(sd1, 5);
@@ -73,7 +73,7 @@ void * test_listen() {
 	if (rc < 0) {
 		fprintf(stderr, "listen() error \n");
 		close(sd1);
-		return;
+		return NULL;
 
 	}
 
@@ -82,7 +82,7 @@ void * test_listen() {
 	if (sd2 < 0) {
 		fprintf(stderr, "accept() error \n");
 		close(sd1);
-		return;
+		return NULL;
 	}
 
 	rc = recv(sd2, buffer, sizeof(buffer), 0);
@@ -91,7 +91,7 @@ void * test_listen() {
 		fprintf(stderr, "recv() error \n");
 		close(sd1);
 		close(sd2);
-		return;
+		return NULL;
 	}
 
 	len = rc;
@@ -102,18 +102,20 @@ void * test_listen() {
 		fprintf(stderr, "send() error \n");
 		close(sd1);
 		close(sd2);
-		return;
+		return NULL;
 	}
 
 	if (close(sd1) != 0){
 			fprintf(stderr, "close() error \n");
-			return;
+			return NULL;
 	}
 
 	if (close(sd2) != 0){
 			fprintf(stderr, "close() error \n");
-			return;
+			return NULL;
 	}
+
+	return (void*) 1;
 }
 
 void * test_client()
@@ -129,7 +131,7 @@ void * test_client()
 
 	if (sockfd < 0) {
 		fprintf(stderr, "client - socket() error \n");
-		return;
+		return NULL;
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -142,14 +144,14 @@ void * test_client()
 	rc = connect(sockfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
 	if (rc < 0) {
 		fprintf(stderr, "client - connect() error \n");
-		return;
+		return NULL;
 	}
 
 	len = send(sockfd, send_buf, strlen(send_buf) + 1, 0);
 
 	if (len != strlen(send_buf) + 1) {
 		fprintf(stderr, "client - send() error \n");
-		return;
+		return NULL;
 	}
 
 	fprintf(stdout, "%d bytes sent \n", len);
@@ -157,7 +159,7 @@ void * test_client()
 
 	if (len != strlen(send_buf) + 1) {
 		fprintf(stderr, "client - recv() error \n");
-		return;
+		return NULL;
 	}
 
 	fprintf(stdout, "server %s \n", recv_buf);
@@ -165,6 +167,7 @@ void * test_client()
 
 	if (close(sockfd)!= 0){
 		fprintf(stderr, "close() error \n");
-		return;
+		return NULL;
 	}
+	return (void*) 1;
 }

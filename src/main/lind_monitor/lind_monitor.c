@@ -77,7 +77,6 @@ void monitor_close()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
 		if ((int32_t) regs.arg1 >= 0) {
 			regs.retval = lind_close(regs.arg1);
@@ -86,10 +85,8 @@ void monitor_close()
 						(int) regs.retval);
 
 		}
-
-			entering = 1;
+		entering = 1;
 	}
-
 }
 
 void monitor_getuid()
@@ -124,24 +121,42 @@ void monitor_open()
 	if (entering) {
 		entering = 0;
 	} else {
-
 		char *path = get_path(regs.arg1);
+
 		int lind_fd = lind_open(path, regs.arg2, regs.arg3);
 
 		if (lind_fd >= 0) {
 			add_mapping(regs.retval, lind_fd);
 			regs.retval = lind_fd;
-		} else {
-			regs.retval = -1;
-		}
-		set_args(&regs);
+			set_args(&regs);
+			fprintf(stdout, "[monitor] open(%s, %d, %d) = %d\n", path,
+					(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
 
-		fprintf(stdout, "[monitor] open(%s, %d, %d) = %d\n", path,
-				(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
+		}
 
 		entering = 1;
 	}
 }
+
+void monitor_fstat()
+{
+	struct lind_stat st;
+
+	if (entering) {
+		entering = 0;
+
+	} else {
+		regs.retval = lind_fstat(regs.arg1, &st);
+		set_mem(regs.arg2, &st, sizeof(st));
+		set_args(&regs);
+
+		fprintf(stdout, "[monitor] fstat(%d, {st_mode = %d, st_size = %d}) = %d \n", (int) regs.arg1, (int) st.st_mode, (int) st.st_size,
+				(int) regs.retval);
+		entering = 1;
+	}
+
+}
+
 
 void monitor_openat()
 {
@@ -218,21 +233,6 @@ void monitor_stat()
 	}
 }
 
-void monitor_fstat()
-{
-	struct lind_stat st;
-
-	if (entering) {
-		entering = 0;
-	} else {
-		regs.retval = lind_fstat(regs.arg1, &st);
-		set_mem(regs.arg2, &st, sizeof(st));
-		fprintf(stdout, "[monitor] fstat(%d, {st_mode = %d, st_size = %d}) = %d \n", (int) regs.arg1, (int) st.st_mode, (int) st.st_size,
-				(int) regs.retval);
-		set_args(&regs);
-		entering = 1;
-	}
-}
 
 void monitor_fstatfs()
 {
@@ -315,6 +315,7 @@ void monitor_write()
 {
 	if (entering) {
 		entering = 0;
+
 	} else {
 		regs.retval = lind_write(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3);
@@ -388,7 +389,7 @@ void monitor_shutdown()
 {
 	if (entering) {
 		entering = 0;
-	} else {
+		} else {
 		regs.retval = lind_shutdown(regs.arg1, regs.arg2);
 		set_args(&regs);
 		fprintf(stdout, "[monitor] shutdown(%d, %d) = %d \n", (int) regs.arg1,
@@ -428,7 +429,6 @@ void monitor_getcwd()
 	if (entering) {
 		entering = 0;
 	} else {
-
 		fprintf(stdout, "[monitor] getcwd(%s)\n", get_path(regs.arg1));
 		entering = 1;
 	}
@@ -527,8 +527,8 @@ void monitor_getdents()
 {
 	if (entering) {
 		entering = 0;
-	} else {
 
+	} else {
 		char *buf = malloc (sizeof(char) * regs.arg3);
 		regs.retval = lind_getdents(regs.arg1, buf,
 				regs.arg3);
@@ -559,8 +559,6 @@ void monitor_pwritev()
 	if (entering) {
 		entering = 0;
 	} else {
-
-		//int lind_fd = get_mapping(regs.arg1);
 		regs.retval = lind_pwrite(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3, regs.arg4);
 		set_args(&regs);
@@ -592,17 +590,17 @@ void monitor_socket()
 	if (entering) {
 		entering = 0;
 	} else {
-			int lind_fd = lind_socket(regs.arg1, regs.arg2, regs.arg3);
+		int lind_fd = lind_socket(regs.arg1, regs.arg2, regs.arg3);
 
-			if (lind_fd >= 0) {
-				add_mapping(regs.retval, lind_fd);
-				regs.retval = lind_fd;
-			} else {
-				regs.retval = -1;
-			}
-			set_args(&regs);
-			fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d \n", (int) regs.arg1,
-					(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
+		if (lind_fd >= 0) {
+			add_mapping(regs.retval, lind_fd);
+			regs.retval = lind_fd;
+		} else {
+			regs.retval = -1;
+		}
+		set_args(&regs);
+		fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d \n", (int) regs.arg1,
+				(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -854,7 +852,7 @@ void monitor_getpeername()
 {
 	if (entering) {
 		entering = 0;
-	} else {
+		} else {
 		fprintf(stdout, "[monitor] getpeername(%d) = %d \n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
@@ -872,7 +870,6 @@ void monitor_select()
 		void* set3 = get_mem(regs.arg4, sizeof(fd_set));
 		void* tv = get_mem(regs.arg5, sizeof(struct timeval));
 
-		regs.arg1 = get_mapping(regs.arg1);
 		regs.retval = lind_select(regs.arg1, set1, set2, set3, tv);
 		set_mem(regs.arg2, set1, sizeof(fd_set));
 		set_mem(regs.arg3, set2, sizeof(fd_set));

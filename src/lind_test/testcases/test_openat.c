@@ -21,7 +21,7 @@ void test_openat(char *path)
 	   int fd;
 	   mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 	   int fd_dir = AT_FDCWD;
-	   fd = openat(fd_dir, path, O_RDONLY, mode);
+	   fd = syscall(SYS_openat, fd_dir, path, O_RDONLY, mode);
 	   if(fd == -1){
 		   fprintf(stderr, "	[testcases] openat(%d, %s, %d, %d) = %d  error \n", fd_dir, path, O_RDONLY, mode, fd);
 	    	return ;

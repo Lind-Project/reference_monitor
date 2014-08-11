@@ -113,7 +113,7 @@ void test_creat();
 void test_dup();
 void test_dup2();
 void test_dup3();
-void test_readp64(char *path);
+void test_pread64(char *path);
 void test_pwritev(char *path);
 void test_getdents(const char *path);
 void test_socketpair();
@@ -134,7 +134,7 @@ void test_openat(char *path);
 void test_mmap(char* path);
 
 
-const char *get_testfiles_dir()
+char *get_testfiles_dir()
 {
 
 	const char *name = "LIND_MONITOR";
