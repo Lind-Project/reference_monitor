@@ -627,7 +627,7 @@ void monitor_connect()
 		regs.retval = lind_connect(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
-		fprintf(stdout, "[monitor] connect(%d, ) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] connect(%d) = %d \n", (int) regs.arg1,
 				(int) regs.retval);
 		set_args(&regs);
 		entering = 1;
@@ -638,7 +638,6 @@ void monitor_accept()
 {
 	if (entering) {
 		entering = 0;
-
 	} else {
 		int lind_fd = lind_accept(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)),
@@ -782,16 +781,17 @@ void monitor_getsockname()
 	if (entering) {
 		entering = 0;
 	} else {
-		struct lind_sockaddr *buff = malloc(regs.arg3);
+
+		struct lind_sockaddr *buff = malloc(sizeof (struct lind_sockaddr));
 		regs.retval = lind_getsockname(regs.arg1, buff,
 					(lind_socklen_t*) regs.arg3);
 		set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] getsockname(%d) = %d \n", (int) regs.arg1,
-				(int) regs.retval);
+		fprintf(stdout, "[monitor] getsockname(%d, %d) = %d \n", (int) regs.arg1,
+				(int) regs.arg2, (int) regs.retval);
+		free(buff);
 		entering = 1;
-
-	}
+		}
 }
 
 void monitor_getsockopt()
@@ -799,14 +799,16 @@ void monitor_getsockopt()
 	if (entering) {
 		entering = 0;
 	} else {
-		struct lind_sockaddr *buff = malloc(regs.arg2);
+		struct lind_sockaddr *buff = malloc(sizeof(struct lind_sockaddr));
 		regs.retval = lind_getsockopt(regs.arg1, regs.arg2, regs.arg3, buff,
 				(lind_socklen_t*) regs.arg5);
 		set_mem(regs.arg4, buff, sizeof(struct lind_sockaddr));
 		set_args(&regs);
 
-		fprintf(stdout, "[monitor] getsockopt(%d) = %d \n", (int) regs.arg1,
-				(int) regs.retval);
+		fprintf(stdout, "[monitor] getsockopt(%d, %d, %d, %d) = %d \n", (int) regs.arg1,
+				(int) regs.arg2, (int) regs.arg3, (int) regs.arg5, (int) regs.retval);
+
+		free(buff);
 		entering = 1;
 	}
 }
@@ -817,10 +819,10 @@ void monitor_setsockopt()
 		entering = 0;
 	} else {
 		regs.retval = lind_setsockopt(regs.arg1, regs.arg2, regs.arg3,
-				get_mem(regs.arg4, sizeof(struct lind_sockaddr)), regs.arg5);
+				get_mem(regs.arg4, sizeof(struct lind_sockaddr )), regs.arg5);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] setsockopt(%d) = %d \n", (int) regs.arg1,
-				(int) regs.retval);
+		fprintf(stdout, "[monitor] setsockopt(%d, %d, %d, %d) = %d \n", (int) regs.arg1,
+				(int) regs.arg2, (int) regs.arg3, (int) regs.arg5, (int) regs.retval);
 		entering = 1;
 
 	}

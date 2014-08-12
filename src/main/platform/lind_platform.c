@@ -456,7 +456,7 @@ int lind_socket(int domain, int type, int protocol) {
 int lind_bind(int sockfd, const struct lind_sockaddr *addr,
 		lind_socklen_t addrlen) {
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_net_bind, "[iis#]", sockfd, addrlen, addr), 0);
+			MakeLindSysCall(LIND_safe_net_bind, "[iis#]", sockfd, addrlen, addr, addrlen), 0);
 }
 
 ssize_t lind_send(int sockfd, const void *buf, size_t len, int flags) {
@@ -495,21 +495,23 @@ int lind_accept(int sockfd, const struct lind_sockaddr *addr,
 		lind_socklen_t* addrlen) {
 	UNREFERENCED_PARAMETER(addr);
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_net_accept, "[ii]", sockfd, *addrlen), 0);
+			MakeLindSysCall(LIND_safe_net_accept, "[is#]", sockfd, addr, addrlen), 0);
 }
 
 int lind_getpeername(int sockfd, struct lind_sockaddr *addr,
 		lind_socklen_t* addrlen) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getpeername, "[ii]", sockfd,
-					*addrlen), 1, addr, *addrlen);
+					addrlen), 1, addr, addrlen);
 }
 
 int lind_getsockname(int sockfd, struct lind_sockaddr *addr,
 		lind_socklen_t *addrlen) {
+
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getsockname, "[ii]", sockfd,
-					*addrlen), 1, addr, *addrlen);
+					addrlen), 1, addr, addrlen);
+
 }
 
 int lind_setsockopt(int sockfd, int level, int optname, const void *optval,

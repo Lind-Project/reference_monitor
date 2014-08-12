@@ -48,6 +48,7 @@ void * test_accept()
 
 	if (sd1 < 0) {
 		fprintf(stderr, "socket() error \n");
+		return NULL;
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -61,7 +62,7 @@ void * test_accept()
 	if (rc < 0) {
 		fprintf(stderr, "bind() error \n");
 		close(sd1);
-
+		return NULL;
 	}
 
 	rc = listen(sd1, 5);
@@ -69,14 +70,15 @@ void * test_accept()
 	if (rc < 0) {
 		fprintf(stderr, "listen() error \n");
 		close(sd1);
-
+		return NULL;
 	}
 
 	sd2 = accept(sd1, NULL, NULL);
 
 	if (sd2 < 0) {
-		fprintf(stderr, "accept() error \n");
+		fprintf(stderr, "accept()= %d \n", sd2);
 		close(sd1);
+		return NULL;
 
 	}
 
@@ -96,7 +98,7 @@ void *test_accept_client()
 
 	if (sockfd < 0) {
 		fprintf(stderr, "client - socket() = %d error \n", sockfd);
-
+		return NULL;
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -110,7 +112,7 @@ void *test_accept_client()
 	if (rc < 0) {
 		fprintf(stderr, "client: connect() = %d error \n", rc);
 		close(sockfd);
-
+		return NULL;
 	}
 
 	fprintf(stdout, "connection accepted \n");
