@@ -323,7 +323,7 @@ int lind_unlink(const char *name) {
 }
 
 int lind_link(const char *from, const char *to) {
-	return ParseResponse(MakeLindSysCall(LIND_safe_fs_unlink, "[ss]", from, to),
+	return ParseResponse(MakeLindSysCall(LIND_safe_fs_link, "[ss]", from, to),
 			0);
 }
 
@@ -383,7 +383,7 @@ off_t lind_lseek(int fd, off_t offset, int whence) {
 	int retval;
 	off_t ret_off;
 	retval = ParseResponse(
-			MakeLindSysCall(LIND_safe_fs_read, "[iii]", offset, fd, whence), 1,
+			MakeLindSysCall(LIND_safe_fs_lseek, "[iii]", offset, fd, whence), 1,
 			&ret_off, sizeof(ret_off));
 	if (retval < 0) {
 		return retval;
@@ -510,7 +510,7 @@ int lind_getsockname(int sockfd, struct lind_sockaddr *addr,
 
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getsockname, "[ii]", sockfd,
-					addrlen), 1, addr, addrlen);
+				addrlen), 1, addr, addrlen);
 
 }
 
@@ -652,7 +652,7 @@ int lind_getuid(void) {
 }
 
 int lind_geteuid(void) {
-	return ParseResponse(MakeLindSysCall(LIND_safe_sys_getegid, "[]"),0);
+	return ParseResponse(MakeLindSysCall(LIND_safe_sys_geteuid, "[]"),0);
 }
 
 int lind_getgid(void){
