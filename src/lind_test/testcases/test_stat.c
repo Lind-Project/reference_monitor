@@ -16,61 +16,29 @@ int main(int argc, char **argv)
 
 void test_stat(char *path)
 {
-	/* taken from http://man7.org/linux/man-pages/man2/stat.2.html */
+	/* http://codewiki.wikidot.com/c:system-calls:stat */
+    struct stat fileStat;
+    if(stat(path, &fileStat) < 0)
+        return ;
 
-	struct stat sb;
+    fprintf(stdout, "Information for %s\n", path);
+    fprintf(stdout, "---------------------------\n");
+    fprintf(stdout, "File Size: \t\t%d bytes\n", (int) fileStat.st_size);
+    fprintf(stdout, "Number of Links: \t%d\n", (int) fileStat.st_nlink);
+    fprintf(stdout, "File inode: \t\t%d\n",  (int) fileStat.st_ino);
 
-	if (stat(path, &sb) == -1) {
-		fprintf(stderr, "stat failed %s \n", path);
-		return;
-	}
+    fprintf(stdout, "File Permissions: \t");
+    printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+    printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+    printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+    printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+    fprintf(stdout, "\n\n");
 
-	fprintf(stdout, "File type:              \n ");
-
-	switch (sb.st_mode & S_IFMT) {
-		case S_IFBLK:
-			fprintf(stdout, "block device\n");
-			break;
-		case S_IFCHR:
-			fprintf(stdout, "character device\n");
-			break;
-		case S_IFDIR:
-			fprintf(stdout, "directory\n");
-			break;
-		case S_IFIFO:
-			fprintf(stdout, "FIFO/pipe\n");
-			break;
-		case S_IFLNK:
-			fprintf(stdout, "symlink\n");
-			break;
-		case S_IFREG:
-			fprintf(stdout, "regular file\n");
-			break;
-		case S_IFSOCK:
-			fprintf(stdout, "socket\n");
-			break;
-		default:
-			fprintf(stdout, "unknown?\n");
-			break;
-	}
-
-	fprintf(stdout, "I-node number:            %ld\n", (long) sb.st_ino);
-
-	fprintf(stdout, "Mode:                     %lo (octal)\n",
-			(unsigned long) sb.st_mode);
-
-	fprintf(stdout, "Link count:               %ld\n", (long) sb.st_nlink);
-	fprintf(stdout, "Ownership:                UID=%ld   GID=%ld\n",
-			(long) sb.st_uid, (long) sb.st_gid);
-
-	fprintf(stdout, "Preferred I/O block size: %ld bytes\n",
-			(long) sb.st_blksize);
-	fprintf(stdout, "File size:                %lld bytes\n",
-			(long long) sb.st_size);
-	fprintf(stdout, "Blocks allocated:         %lld\n",
-			(long long) sb.st_blocks);
-
-	fprintf(stdout, "Last status change:       %s", ctime(&sb.st_ctime));
-	fprintf(stdout, "Last file access:         %s", ctime(&sb.st_atime));
-	fprintf(stdout, "Last file modification:   %s", ctime(&sb.st_mtime));
-}
+    fprintf(stdout, "The file %s a symbolic link\n", (S_ISLNK(fileStat.st_mode)) ? "is" : "is not");
+ }

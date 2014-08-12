@@ -8,7 +8,6 @@
 
 #include "testcases.h"
 
-
 int main(int argc, char **argv)
 {
 	test_socket();
@@ -30,6 +29,7 @@ void test_socket()
 	}
 
 	bzero(&dest, sizeof(dest));
+
 	dest.sin_family = AF_INET;
 	dest.sin_port = htons(HTTP_TEST_PORT);
 	dest.sin_addr.s_addr = inet_addr(SERVER_ADDR);
@@ -39,14 +39,15 @@ void test_socket()
 	int ret;
 
 	if ((ret = connect(sockfd, (struct sockaddr*) &dest, sizeof(dest))) != 0) {
-		fprintf(stderr, "connect() error.  check the server IP address %s  \n", SERVER_ADDR);
+		fprintf(stderr, "connect() error.  check the server IP address %s  \n",
+				SERVER_ADDR);
 		return;
 	}
 
 	socket_flag = 1;
 
 	while (1) {
-		if(!socket_flag)
+		if (!socket_flag)
 			break;
 		send(sockfd, "test\n", 5, 0);
 		fprintf(stdout, "message sent\n");
@@ -56,8 +57,8 @@ void test_socket()
 		sleep(1);
 	}
 
-   if (close(sockfd)!= 0){
-	   fprintf(stderr, "close() error \n");
-	   return;
+	if (close(sockfd) != 0) {
+		fprintf(stderr, "close() error \n");
+		return;
 	}
 }

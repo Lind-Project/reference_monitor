@@ -76,6 +76,7 @@
 #define LIND_safe_fs_dup3             	62
 #define LIND_safe_fs_readv              63
 #define LIND_safe_fs_wrtiev             64
+#define LIND_safe_fs_lstat              65
 
 #define LIND_comp_cia                   105
 #define LIND_comp_call                  106
@@ -145,6 +146,7 @@ ssize_t lind_pread(int fd, void* buf, int count, off_t offset);
 ssize_t lind_pwrite(int fd, const void *buf, int count, off_t offset);
 ssize_t lind_readv(int fd, void* buf, int count);
 ssize_t lind_writev(int fd, const void *buf, int count);
+int lind_lstat (const char *path, struct lind_stat *buf);
 
 void add_mapping(int src, int dest);
 int get_mapping(int fd);

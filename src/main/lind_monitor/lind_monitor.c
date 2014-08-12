@@ -140,12 +140,11 @@ void monitor_open()
 
 void monitor_fstat()
 {
-	struct lind_stat st;
-
 	if (entering) {
 		entering = 0;
 
 	} else {
+		struct lind_stat st;
 		regs.retval = lind_fstat(regs.arg1, &st);
 		set_mem(regs.arg2, &st, sizeof(st));
 		set_args(&regs);
@@ -628,7 +627,7 @@ void monitor_connect()
 		regs.retval = lind_connect(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
-		fprintf(stdout, "[monitor] connect(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] connect(%d, ) = %d \n", (int) regs.arg1,
 				(int) regs.retval);
 		set_args(&regs);
 		entering = 1;
