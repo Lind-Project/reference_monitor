@@ -430,7 +430,6 @@ int lind_dup3(int oldfd, int newfd, int flags) {
 			MakeLindSysCall(LIND_safe_fs_dup3, "[iii]", oldfd, newfd, flags), 0);
 }
 
-
 int lind_getdents(unsigned int fd, char *dirp, unsigned int count) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_fs_getdents, "[ii]", fd, count), 1, dirp,
@@ -507,7 +506,6 @@ int lind_getpeername(int sockfd, struct lind_sockaddr *addr,
 
 int lind_getsockname(int sockfd, struct lind_sockaddr *addr,
 		lind_socklen_t *addrlen) {
-
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getsockname, "[ii]", sockfd,
 				addrlen), 1, addr, addrlen);

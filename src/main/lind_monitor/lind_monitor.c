@@ -55,7 +55,7 @@ void monitor_execve()
 		}
 	} else {
 		fprintf(stdout, "]");
-		fprintf(stdout, ") = %d \n", (int) regs.retval);
+		fprintf(stdout, ") = %d\n", (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -81,7 +81,7 @@ void monitor_close()
 		if ((int32_t) regs.arg1 >= 0) {
 			regs.retval = lind_close(regs.arg1);
 			set_args(&regs);
-			fprintf(stdout, "[monitor] close(%d) = %d \n", (int) regs.arg1,
+			fprintf(stdout, "[monitor] close(%d) = %d\n", (int) regs.arg1,
 						(int) regs.retval);
 
 		}
@@ -96,7 +96,7 @@ void monitor_getuid()
 	} else {
 		regs.retval = lind_getuid();
 		set_args(&regs);
-		fprintf(stdout, "[monitor] getuid() = %d \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] getuid() = %d\n", (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -110,7 +110,7 @@ void monitor_read()
 		regs.retval = lind_read(regs.arg1, buff, regs.arg3);
 		set_mem(regs.arg2, buff, regs.arg3);
 		set_args(&regs);
-		fprintf(stdout, "read(%d, 0x%lx[], %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] read(%d, 0x%lx[], %d) = %d\n", (int) regs.arg1,
 				(long) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
@@ -149,13 +149,12 @@ void monitor_fstat()
 		set_mem(regs.arg2, &st, sizeof(st));
 		set_args(&regs);
 
-		fprintf(stdout, "[monitor] fstat(%d, {st_mode = %d, st_size = %d}) = %d \n", (int) regs.arg1, (int) st.st_mode, (int) st.st_size,
+		fprintf(stdout, "[monitor] fstat(%d, {st_mode = %d, st_size = %d}) = %d\n", (int) regs.arg1, (int) st.st_mode, (int) st.st_size,
 				(int) regs.retval);
 		entering = 1;
 	}
 
 }
-
 
 void monitor_openat()
 {
@@ -210,7 +209,7 @@ void monitor_statfs()
 		regs.retval = lind_statfs(path, &stfs);
 		set_mem(regs.arg2, &stfs, sizeof(stfs));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] statfs(%s) = %d \n", path,
+		fprintf(stdout, "[monitor] statfs(%s) = %d\n", path,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -227,7 +226,23 @@ void monitor_stat()
 		regs.retval = lind_stat(path, &st);
 		set_mem(regs.arg2, &st, sizeof(st));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] stat(%s) = %d \n", path, (int) regs.retval);
+		fprintf(stdout, "[monitor] stat(%s) = %d\n", path, (int) regs.retval);
+		entering = 1;
+	}
+}
+
+void monitor_lstat()
+{
+	struct lind_stat st;
+
+	if (entering) {
+		entering = 0;
+	} else {
+		char *path = get_path(regs.arg1);
+		regs.retval = lind_lstat(path, &st);
+		set_mem(regs.arg2, &st, sizeof(st));
+		set_args(&regs);
+		fprintf(stdout, "[monitor] lstat(%s) = %d\n", path, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -243,7 +258,7 @@ void monitor_fstatfs()
 		regs.retval = lind_fstatfs(regs.arg1, &stfs);
 		set_mem(regs.arg2, &stfs, sizeof(stfs));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] fstatfs(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] fstatfs(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -257,7 +272,7 @@ void monitor_rmdir()
 		char* path = get_path(regs.arg1);
 		regs.retval = lind_rmdir(path);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] rmdir(%s) = %d \n", path, (int) regs.retval);
+		fprintf(stdout, "[monitor] rmdir(%s) = %d\n", path, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -269,7 +284,7 @@ void monitor_getpid()
 	} else {
 		regs.retval = lind_getpid();
 		set_args(&regs);
-		fprintf(stdout, "[monitor] getpid() = %d \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] getpid() = %d\n", (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -281,7 +296,7 @@ void monitor_geteuid()
 	} else {
 		regs.retval = lind_geteuid();
 		set_args(&regs);
-		fprintf(stdout, "[monitor] geteuid() = %d \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] geteuid() = %d\n", (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -292,7 +307,7 @@ void monitor_getgid()
 		entering = 0;
 	} else {
 		regs.retval = lind_getgid();
-		fprintf(stdout, "[monitor] getgid() = %d \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] getgid() = %d\n", (int) regs.retval);
 		set_args(&regs);
 		entering = 1;
 	}
@@ -305,7 +320,7 @@ void monitor_getegid()
 	} else {
 		regs.retval = lind_getegid();
 		set_args(&regs);
-		fprintf(stdout, "[monitor] getegid() = %d \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] getegid() = %d\n", (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -320,7 +335,7 @@ void monitor_write()
 				regs.arg3);
 
 		set_args(&regs);
-		fprintf(stdout, "[monitor] write(%d, 0x%lx[], %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] write(%d, 0x%lx[], %d) = %d\n", (int) regs.arg1,
 			   (long) regs.arg2, (int) regs.arg3,
 			   (int) regs.retval);
 		entering = 1;
@@ -336,7 +351,7 @@ void monitor_unlink()
 		regs.retval = lind_unlink(path);
 		set_args(&regs);
 
-		fprintf(stdout, "[monitor] unlink(%s) = %d \n", path,
+		fprintf(stdout, "[monitor] unlink(%s) = %d\n", path,
 				(int) regs.retval);
 
 		entering = 1;
@@ -352,7 +367,7 @@ void monitor_link()
 		char *path1 = get_path(regs.arg2);
 		regs.retval = lind_link(path, path1);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] link(%s, %s) = %d \n", path, path1,
+		fprintf(stdout, "[monitor] link(%s, %s) = %d\n", path, path1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -365,7 +380,7 @@ void monitor_fcntl()
 	} else {
 		regs.retval = lind_fcntl(regs.arg1, regs.arg2);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] fcntl(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] fcntl(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
@@ -378,7 +393,7 @@ void monitor_listen()
 	} else {
 		regs.retval = lind_listen(regs.arg1, regs.arg2);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] listen(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] listen(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
@@ -391,7 +406,7 @@ void monitor_shutdown()
 		} else {
 		regs.retval = lind_shutdown(regs.arg1, regs.arg2);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] shutdown(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] shutdown(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
@@ -405,7 +420,7 @@ void monitor_mkdir()
 		char *path = get_path(regs.arg1);
 		regs.retval = lind_mkdir(path, regs.arg2);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] mkdir(%s) = %d \n", path, (int) regs.retval);
+		fprintf(stdout, "[monitor] mkdir(%s) = %d\n", path, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -418,7 +433,7 @@ void monitor_chdir()
 		char *path = get_path(regs.arg1);
 		regs.retval = lind_chdir(path);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] chdir(%s) = %d \n", path, (int) regs.retval);
+		fprintf(stdout, "[monitor] chdir(%s) = %d\n", path, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -446,7 +461,7 @@ void monitor_dup()
 			regs.retval = -1;
 		}
 		set_args(&regs);
-		fprintf(stdout, "[monitor] dup(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] dup(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -465,7 +480,7 @@ void monitor_dup2()
 			regs.retval = -1;
 		}
 		set_args(&regs);
-		fprintf(stdout, "[monitor] dup2(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] dup2(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
@@ -484,7 +499,7 @@ void monitor_dup3()
 			regs.retval = -1;
 		}
 		set_args(&regs);
-		fprintf(stdout, "[monitor] dup3(%d, %d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] dup3(%d, %d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
@@ -497,7 +512,7 @@ void monitor_flock()
 	} else {
 		regs.retval = lind_flock(regs.arg1, regs.arg2);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] flock(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] flock(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
@@ -516,7 +531,7 @@ void monitor_epoll_create()
 			regs.retval = -1;
 		}
 		set_args(&regs);
-		fprintf(stdout, "[monitor] epoll_create(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] epoll_create(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -528,13 +543,15 @@ void monitor_getdents()
 		entering = 0;
 
 	} else {
-		char *buf = malloc (sizeof(char) * regs.arg3);
+		//       int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
+
+		char *buf = malloc (regs.arg3);
 		regs.retval = lind_getdents(regs.arg1, buf,
 				regs.arg3);
 		set_mem(regs.arg2, buf, regs.arg3);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] getdents(%d, %d) = %d \n", (int) regs.arg1,
-				(int) regs.arg3, (int) regs.retval);
+		fprintf(stdout, "[monitor] getdents(%d, %d) = %d\n", (int) regs.arg1,
+				 (int) regs.arg3, (int) regs.retval);
 		free(buf);
 		entering = 1;
 	}
@@ -547,7 +564,7 @@ void monitor_lseek()
 	} else {
 		regs.retval = lind_lseek(regs.arg1, regs.arg2, regs.arg3);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] lseek(%u, %d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] lseek(%u, %d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
@@ -561,7 +578,7 @@ void monitor_pwritev()
 		regs.retval = lind_pwrite(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3, regs.arg4);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] pwritev(%d, 0x%lx[], %d) = %d \n", (int)regs.arg1,
+		fprintf(stdout, "[monitor] pwritev(%d, 0x%lx[], %d) = %d\n", (int)regs.arg1,
 				(long) regs.arg2, (int) regs.arg4,
 				(int) regs.retval);
 		entering = 1;
@@ -576,7 +593,7 @@ void monitor_pread64()
 		regs.retval = lind_pread(regs.arg1, get_mem(regs.arg2, regs.arg3),
 				regs.arg3, regs.arg4);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] pread64(%d, 0x%lx[], %d) = %d \n",
+		fprintf(stdout, "[monitor] pread64(%d, 0x%lx[], %d) = %d\n",
 				(int) regs.arg1, (long) regs.arg2,
 				(int) regs.arg4, (int) regs.retval);
 		entering = 1;
@@ -598,7 +615,7 @@ void monitor_socket()
 			regs.retval = -1;
 		}
 		set_args(&regs);
-		fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] socket(%d, %d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
@@ -613,7 +630,7 @@ void monitor_bind()
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
 		set_args(&regs);
-		fprintf(stdout, "[monitor] bind(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] bind(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -627,7 +644,7 @@ void monitor_connect()
 		regs.retval = lind_connect(regs.arg1,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg3);
 
-		fprintf(stdout, "[monitor] connect(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] connect(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		set_args(&regs);
 		entering = 1;
@@ -651,7 +668,7 @@ void monitor_accept()
 		}
 
 		set_args(&regs);
-		fprintf(stdout, "[monitor] accept(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] accept(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -666,7 +683,7 @@ void monitor_sendto()
 				regs.arg3, regs.arg4,
 				get_mem(regs.arg2, sizeof(struct lind_sockaddr)), regs.arg5);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] sendto(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] sendto(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -689,7 +706,7 @@ void monitor_recvfrom()
 		free(buff);
 		set_args(&regs);
 
-		fprintf(stdout, "[monitor] recvfrom(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] recvfrom(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -736,7 +753,7 @@ void monitor_recvmsg()
 
 		set_args(&regs);
 
-		fprintf(stdout, "[monitor] recvmsg(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] recvmsg(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
@@ -770,7 +787,7 @@ void monitor_sendmsg()
 		free(iovs_orig);
 		set_args(&regs);
 
-		fprintf(stdout, "[monitor] sendmsg(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] sendmsg(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -787,7 +804,7 @@ void monitor_getsockname()
 					(lind_socklen_t*) regs.arg3);
 		set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] getsockname(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] getsockname(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.retval);
 		free(buff);
 		entering = 1;
@@ -805,7 +822,7 @@ void monitor_getsockopt()
 		set_mem(regs.arg4, buff, sizeof(struct lind_sockaddr));
 		set_args(&regs);
 
-		fprintf(stdout, "[monitor] getsockopt(%d, %d, %d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] getsockopt(%d, %d, %d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.arg3, (int) regs.arg5, (int) regs.retval);
 
 		free(buff);
@@ -821,7 +838,7 @@ void monitor_setsockopt()
 		regs.retval = lind_setsockopt(regs.arg1, regs.arg2, regs.arg3,
 				get_mem(regs.arg4, sizeof(struct lind_sockaddr )), regs.arg5);
 		set_args(&regs);
-		fprintf(stdout, "[monitor] setsockopt(%d, %d, %d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] setsockopt(%d, %d, %d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.arg3, (int) regs.arg5, (int) regs.retval);
 		entering = 1;
 
@@ -843,7 +860,7 @@ void monitor_socketpair()
 			regs.retval = -1;
 		}
 		set_args(&regs);
-		fprintf(stdout, "[monitor] socketpair(%d, %d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] socketpair(%d, %d) = %d\n", (int) regs.arg1,
 				(int) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
@@ -854,7 +871,7 @@ void monitor_getpeername()
 	if (entering) {
 		entering = 0;
 		} else {
-		fprintf(stdout, "[monitor] getpeername(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] getpeername(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -877,7 +894,7 @@ void monitor_select()
 		set_mem(regs.arg4, set3, sizeof(fd_set));
 		set_mem(regs.arg5, tv, sizeof(struct timeval));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] select(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] select(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -892,7 +909,7 @@ void monitor_poll()
 		regs.retval = lind_poll(lpfd, regs.arg2, regs.arg3);
 		set_mem(regs.arg1, lpfd, sizeof(struct lind_pollfd));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] poll(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] poll(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -911,7 +928,7 @@ void monitor_epoll_ctl()
 
 		set_mem(regs.arg4, event, sizeof(struct lind_epoll_event));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] epoll_ctl(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] epoll_ctl(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -927,7 +944,7 @@ void monitor_epoll_wait()
 		regs.retval = lind_epoll_wait(regs.arg1, event, regs.arg3, regs.arg4);
 		set_mem(regs.arg2, event, sizeof(struct lind_epoll_event));
 		set_args(&regs);
-		fprintf(stdout, "[monitor] epoll_wait(%d) = %d \n", (int) regs.arg1,
+		fprintf(stdout, "[monitor] epoll_wait(%d) = %d\n", (int) regs.arg1,
 				(int) regs.retval);
 		entering = 1;
 	}
@@ -938,7 +955,7 @@ void monitor_os()
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[Kernel] %s() = %d \n", syscall_names[regs.syscall],
+		fprintf(stdout, "[monitor] %s() = %d\n", syscall_names[regs.syscall],
 					(int) regs.retval);
 		entering = 1;
 	}
@@ -949,7 +966,7 @@ void monitor_gettid()
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[monitor] gettid() = %d \n",
+		fprintf(stdout, "[monitor] gettid() = %d\n",
 						(int) regs.retval);
 		entering = 1;
 	}
@@ -961,13 +978,17 @@ void monitor_arch_prctl()
 		entering = 0;
 	} else {
 		if (((int32_t) regs.arg5) >= 0) {
-			fprintf(stdout, "[monitor] arch_prctl() =  %d  \n",
+			fprintf(stdout, "[monitor] arch_prctl() =  %d\n",
 					(int) regs.retval);
 		}
 		entering = 1;
 	}
 }
 
+
+/**
+ * To handle the mmap call through the monitor
+ */
 void monitor_mmap()
 {
 	if (entering) {
@@ -977,6 +998,7 @@ void monitor_mmap()
 		regs.arg5 = get_mapping(regs.arg5);
 		set_args(&regs);
 		}
+
 	} else {
 		if (!regs.arg1) {
 				fprintf(stdout, "[monitor] mmap(NULL, %lu, %d, %d, %d, %#llx) = 0x%lx \n",
@@ -996,7 +1018,7 @@ void monitor_munmap()
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[monitor] munmap(%#lx, %lu) = %d  \n", (long) regs.arg1, (long) regs.arg2, (int) regs.retval);
+		fprintf(stdout, "[monitor] munmap(%#lx, %lu) = %d\n", (long) regs.arg1, (long) regs.arg2, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -1006,7 +1028,7 @@ void monitor_mprotect()
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[monitor] mprotect(%#lx, %lu, %d) = %d  \n", (long) regs.arg1, (long) regs.arg2, (int) regs.arg3, (int) regs.retval);
+		fprintf(stdout, "[monitor] mprotect(%#lx, %lu, %d) = %d\n", (long) regs.arg1, (long) regs.arg2, (int) regs.arg3, (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -1036,7 +1058,7 @@ void monitor_tgkill()
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[monitor] tgkill() = %d  \n", (int) regs.retval);
+		fprintf(stdout, "[monitor] tgkill() = %d\n", (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -1047,7 +1069,7 @@ void monitor_gscall(int call_no)
 	if (entering) {
 		entering = 0;
 	} else {
-		fprintf(stdout, "[Kernel] %s() = %d  \n", syscall_names[call_no], (int) regs.retval);
+		fprintf(stdout, "[monitro] %s() = %d\n", syscall_names[call_no], (int) regs.retval);
 		entering = 1;
 	}
 }
@@ -1079,7 +1101,7 @@ void init_ptrace(int argc, char** argv)
 
 	/* check if fork was successful */
 	if (tracee < 0) {
-		fprintf(stderr, "No process could be monitored. \n");
+		fprintf(stderr, "No process could be monitored.\n");
 		exit(-1);
 	}
 
@@ -1163,12 +1185,14 @@ void intercept_calls()
 				case __NR_arch_prctl:
 					monitor_arch_prctl();
 					break;
-				case __NR_mmap:
-					monitor_mmap();
-					break;
 
 				case __NR_munmap:
 					monitor_munmap();
+					break;
+
+
+				case __NR_mmap:
+					monitor_mmap();
 					break;
 
 				case __NR_mprotect:
@@ -1223,6 +1247,10 @@ void intercept_calls()
 				case __NR_stat:
 					monitor_stat();
 					break;
+
+				//case __NR_lstat:
+				//	monitor_lstat();
+				//	break;
 
 				case __NR_statfs:
 					monitor_statfs();

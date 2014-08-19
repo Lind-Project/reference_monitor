@@ -10,13 +10,15 @@
 /* taken from http://man7.org/linux/man-pages/man2/getdents.2.html */
 
 struct linux_dirent {
-	long           d_ino;
-	off_t          d_off;
-	unsigned short d_reclen;
-	char           d_name[];
+	unsigned long           d_ino;
+	unsigned long           d_off;
+	unsigned short 		    d_reclen;
+	char           			*d_name;
+	char					pad;
+	char 		   			d_type;
 };
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 4056
 
 
 int main(int argc, char **argv)
@@ -33,7 +35,6 @@ void test_getdents(const char *path)
 	int bpos;
 	char d_type;
 
-	fprintf(stdout, "'FIRST!!!\n");
 	fd = open(path, O_RDONLY | O_DIRECTORY);
 
 	if (fd == -1) {
@@ -41,11 +42,8 @@ void test_getdents(const char *path)
 		return;
 	}
 
-	  fprintf(stdout, "'BEFORE!!!\n");
-
 	for ( ; ; ) {
 	  nread = syscall(SYS_getdents, fd, buf, BUF_SIZE);
-	  fprintf(stdout, "HERE!!!\n");
 
 	  if (nread == -1) {
 			fprintf(stderr, "getdents(%s) error \n", path);
@@ -61,6 +59,8 @@ void test_getdents(const char *path)
 		  d = (struct linux_dirent *) (buf + bpos);
 		  fprintf(stdout, "%8ld  ", d->d_ino);
 		  d_type = *(buf + bpos + d->d_reclen - 1);
+		  fprintf(stdout,"raw d_type '%d' ", d_type);
+
 		  fprintf(stdout,"%-10s ", (d_type == DT_REG) ?  "regular" :
 						   (d_type == DT_DIR) ?  "directory" :
 						   (d_type == DT_FIFO) ? "FIFO" :

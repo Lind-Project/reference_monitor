@@ -117,7 +117,7 @@ void test_pread64(char *path);
 void test_pwritev(char *path);
 void test_getdents(const char *path);
 void test_socketpair();
-void *test_setsockopt();
+void test_setsockopt();
 void test_setgroups();
 void test_exit_group();
 void test_fcntl(char *path);

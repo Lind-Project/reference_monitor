@@ -1,7 +1,7 @@
 /*
  * test_lstat.c
  *
- *  Created on: Jun 19, 2014
+ *  Created on: August 13, 2014
  *      Author:  Ali Gholami
  */
 
@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 	test_lstat(path);
 	return 0;
 }
-
 
 void test_lstat(char *path)
 {
