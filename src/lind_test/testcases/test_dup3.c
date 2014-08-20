@@ -26,10 +26,10 @@ void test_dup3(char* path)
 		return;
 	}
 
-	int ret = syscall(SYS_dup3, fd, newfd, FD_CLOEXEC);
+	int ret = syscall(SYS_dup3, fd, newfd, O_CLOEXEC);
 
 	if (ret != newfd ){
-		fprintf(stderr, "dup2() error \n");
+		fprintf(stderr, "dup3() error \n");
 		return;
 	}
 
@@ -43,6 +43,6 @@ void test_dup3(char* path)
 		return;
 	}
 
-	fprintf(stdout, "Lind dup executed successfully!\n");
+	fprintf(stdout, "Lind dup3 executed successfully!\n");
 
 }

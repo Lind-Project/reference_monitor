@@ -42,7 +42,7 @@ void test_dup2(char* path)
 		return;
 	}
 
-	fprintf(stdout, "Lind dup executed successfully!\n");
+	fprintf(stdout, "Lind dup2 executed successfully!\n");
 
 }
 

@@ -73,7 +73,7 @@ void test_getdents(const char *path)
 		  }
 		  printf("\n");
 		  fprintf(stdout, "%8ld  ", d->d_ino);
-		char d_type = *(buf + bpos + d->d_reclen - 1);
+		  char d_type = *(buf + bpos + d->d_reclen - 1);
 		  fprintf(stdout,"raw d_type '%d' ", d_type);
 
 		  fprintf(stdout,"%-10s ", (d_type == DT_REG) ?  "regular" :
