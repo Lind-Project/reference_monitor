@@ -76,7 +76,6 @@
 #define LIND_safe_fs_dup3             	62
 #define LIND_safe_fs_readv              63
 #define LIND_safe_fs_wrtiev             64
-#define LIND_safe_fs_lstat              65
 
 #define LIND_comp_cia                   105
 #define LIND_comp_call                  106

@@ -347,13 +347,6 @@ int lind_stat(const char *path, struct lind_stat *buf) {
 			sizeof(*buf));
 }
 
-int lind_lstat(const char *path, struct lind_stat *buf) {
-	int version = 1;
-	return ParseResponse(
-			MakeLindSysCall(LIND_safe_fs_lstat, "[is]", version, path), 1, buf,
-			sizeof(*buf));
-}
-
 int lind_open(const char *path, int flags, int mode) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_fs_open, "[sii]", path, flags, mode), 0);
@@ -515,8 +508,8 @@ int lind_getsockname(int sockfd, struct lind_sockaddr *addr,
 int lind_setsockopt(int sockfd, int level, int optname, const void *optval,
 		lind_socklen_t optlen) {
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_net_setsockopt, "[iiis#]", sockfd, level,
-					optname, optval, optlen), 0);
+			MakeLindSysCall(LIND_safe_net_setsockopt, "[iiis#i]", sockfd, level,
+					optname, optval, optlen, optlen), 0);
 }
 
 int lind_getsockopt(int sockfd, int level, int optname, void *optval,

@@ -231,23 +231,6 @@ void monitor_stat()
 	}
 }
 
-void monitor_lstat()
-{
-	struct lind_stat st;
-
-	if (entering) {
-		entering = 0;
-	} else {
-		char *path = get_path(regs.arg1);
-		regs.retval = lind_lstat(path, &st);
-		set_mem(regs.arg2, &st, sizeof(st));
-		set_args(&regs);
-		fprintf(stdout, "[monitor] lstat(%s) = %d\n", path, (int) regs.retval);
-		entering = 1;
-	}
-}
-
-
 void monitor_fstatfs()
 {
 	struct lind_statfs stfs;

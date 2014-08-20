@@ -25,14 +25,9 @@ void test_dup(char *path)
 		return;
 	}
 
-	if (close(1) != 0) {
-		fprintf(stderr, "close() error \n");
-		return;
-	}
-
 	int ret = dup(fd);
 
-	if (ret < 0){
+	if (ret < 0 ){
 		fprintf(stderr, "dup() error \n");
 		return;
 	}
