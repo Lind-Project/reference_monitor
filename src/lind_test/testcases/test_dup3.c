@@ -19,30 +19,49 @@ void test_dup3(char* path)
 {
 
 	int fd;
-	int newfd = 240;
-	fd = open(path, O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
+	int newfd = STDERR_FILENO;
+
+	fd = open("/var/log/apache2/error.log",O_WRONLY|O_CREAT|O_APPEND|O_CLOEXEC, 0666);
 	if (fd == -1) {
 		fprintf(stderr, "%s \n", path);
 		return;
 	}
+	printf("1BEFORE\n");
+	//close(newfd);
+	write(fd,"1ERR LOOK IN THIS FILE\n\n\n\n\n\n\n\n",24);
+	printf("1AFTER\n");
 
-	int ret = syscall(SYS_dup3, fd, newfd, O_CLOEXEC);
+
+	int ret = syscall(SYS_dup3, fd, newfd, 0);
+
+	printf("2BEFORE\n");
+	//close(newfd);
+	write(fd,"2ERR LOOK IN THIS FILE\n\n\n\n\n\n\n\n",24);
+	printf("2AFTER\n");
+
+	printf("2BEFORE\n");
+	//close(newfd);
+	write(newfd,"3ERR LOOK IN THIS FILE\n\n\n\n\n\n\n\n",24);
+	printf("2AFTER\n");
+
 
 	if (ret != newfd ){
 		fprintf(stderr, "dup3() error \n");
+		perror("dup3");
 		return;
 	}
 
 	if (close(fd) != 0) {
-		fprintf(stderr, "close() error \n");
+		fprintf(stderr, "close(%d) error \n", fd);
 		return;
 	}
 
 	if (close(newfd) != 0) {
-		fprintf(stderr, "close() error \n");
+		fprintf(stderr, "close(%d) error \n", newfd);
 		return;
 	}
 
+	fprintf(stderr, "Test!\n");
 	fprintf(stdout, "Lind dup3 executed successfully!\n");
 
 }

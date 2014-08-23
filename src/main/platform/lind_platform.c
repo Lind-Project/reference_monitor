@@ -7,6 +7,7 @@
 #include <Python.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <fcntl.h>
 
 #include "lind_platform.h"
 
@@ -158,6 +159,7 @@ int GetHostFdFromLindFd(int lindFd) {
 	PyGILState_Release(gstate);
 	return retval;
 }
+
 
 void CopyData(char* dst, char* src, int maxlen, int srclen) {
 	assert(maxlen >= srclen);
@@ -344,7 +346,7 @@ int lind_stat(const char *path, struct lind_stat *buf) {
 	int version = 1;
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_fs_xstat, "[is]", version, path), 1, buf,
-			sizeof(*buf));
+			sizeof(struct lind_stat));
 }
 
 int lind_open(const char *path, int flags, int mode) {
@@ -369,7 +371,7 @@ ssize_t lind_read(int fd, void *buf, size_t size) {
 
 ssize_t lind_write(int fd, const void *buf, size_t count) {
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_fs_write, "[is#]", fd, buf, count), 0);
+			MakeLindSysCall(LIND_safe_fs_write, "[is#]", fd, buf, (int) count), 0);
 }
 
 off_t lind_lseek(int fd, off_t offset, int whence) {
@@ -388,7 +390,7 @@ int lind_fstat(int fd, struct lind_stat *buf) {
 	int version = 1;
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_fs_fxstat, "[ii]", fd, version), 1, buf,
-			sizeof(*buf));
+			sizeof(struct lind_stat));
 }
 
 int lind_fstatfs(int fd, struct lind_statfs *buf) {
@@ -398,7 +400,7 @@ int lind_fstatfs(int fd, struct lind_statfs *buf) {
 
 int lind_statfs(const char *path, struct lind_statfs *buf) {
 	return ParseResponse(MakeLindSysCall(LIND_safe_fs_statfs, "[s]", path), 1,
-			buf, sizeof(*buf));
+			buf, sizeof(struct lind_statfs));
 }
 
 int lind_noop(void) {
@@ -479,7 +481,7 @@ ssize_t lind_sendto(int sockfd, const void *buf, size_t len, int flags,
 		const struct lind_sockaddr *dest_addr, lind_socklen_t addrlen) {
 	UNREFERENCED_PARAMETER(flags);
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_net_sendto, "[iiiis#s#]", sockfd, len,
+			MakeLindSysCall(LIND_safe_net_sendto, "[iiis#s#]", sockfd, len,
 					addrlen, dest_addr, addrlen, buf, len), 0);
 }
 
@@ -487,21 +489,21 @@ int lind_accept(int sockfd, const struct lind_sockaddr *addr,
 		lind_socklen_t* addrlen) {
 	UNREFERENCED_PARAMETER(addr);
 	return ParseResponse(
-			MakeLindSysCall(LIND_safe_net_accept, "[is#]", sockfd, addr, addrlen), 0);
+			MakeLindSysCall(LIND_safe_net_accept, "[is#]", sockfd, addr, *addrlen), 0);
 }
 
 int lind_getpeername(int sockfd, struct lind_sockaddr *addr,
 		lind_socklen_t* addrlen) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getpeername, "[ii]", sockfd,
-					addrlen), 1, addr, addrlen);
+					*addrlen), 1, addr, *addrlen);
 }
 
 int lind_getsockname(int sockfd, struct lind_sockaddr *addr,
 		lind_socklen_t *addrlen) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getsockname, "[ii]", sockfd,
-				addrlen), 1, addr, addrlen);
+				*addrlen), 1, addr, *addrlen);
 
 }
 
@@ -516,7 +518,7 @@ int lind_getsockopt(int sockfd, int level, int optname, void *optval,
 		lind_socklen_t* optlen) {
 	return ParseResponse(
 			MakeLindSysCall(LIND_safe_net_getsockopt, "[iii]", sockfd, level,
-					optname), 1, optval, optlen);
+					optname), 1, optval, *optlen);
 }
 
 int lind_shutdown(int sockfd, int how) {
@@ -759,32 +761,67 @@ ssize_t lind_recvmsg(int sockfd, struct lind_msghdr *msg, int flags) {
 }
 
 int lind_epoll_create(int size) {
-	UNREFERENCED_PARAMETER(size);
-	return 0;
+	//UNREFERENCED_PARAMETER(size);
+	return ParseResponse(
+				MakeLindSysCall(LIND_safe_net_epoll_create, "[i]", size),0);
+	//return 0;
 }
 
+int lind_epoll_create1(int flags) {
+	//UNREFERENCED_PARAMETER(size);
+	return ParseResponse(
+				MakeLindSysCall(LIND_safe_net_epoll_create1, "[i]", flags),0);
+	//return 0;
+}
+
+
 int lind_epoll_ctl(int epfd, int op, int fd, struct lind_epoll_event *event) {
-	UNREFERENCED_PARAMETER(epfd);
-	UNREFERENCED_PARAMETER(op);
-	UNREFERENCED_PARAMETER(fd);
-	UNREFERENCED_PARAMETER(event);
-	return 0;
+	//UNREFERENCED_PARAMETER(epfd);
+	//UNREFERENCED_PARAMETER(op);
+	//UNREFERENCED_PARAMETER(fd);
+	//UNREFERENCED_PARAMETER(event);
+	return ParseResponse(
+				MakeLindSysCall(LIND_safe_net_epoll_ctl, "[iiis#]", epfd, op, fd, event, sizeof (struct  lind_epoll_event )),0);
+
+	//return 0;
 }
 
 int lind_epoll_wait(int epfd, struct lind_epoll_event *events, int maxevents,
 		int timeout) {
-	UNREFERENCED_PARAMETER(epfd);
-	UNREFERENCED_PARAMETER(events);
-	UNREFERENCED_PARAMETER(maxevents);
-	UNREFERENCED_PARAMETER(timeout);
-	return 0;
+	//UNREFERENCED_PARAMETER(epfd);
+	//UNREFERENCED_PARAMETER(events);
+	//UNREFERENCED_PARAMETER(maxevents);
+	//UNREFERENCED_PARAMETER(timeout);
+
+	return ParseResponse(
+				MakeLindSysCall(LIND_safe_net_epoll_wait, "[iii]", epfd, maxevents, timeout), 1, events, sizeof(struct lind_epoll_event));
+	//return 0;
 }
 
 
 int lind_fcntl(int fd, int cmd, ...) {
-	UNREFERENCED_PARAMETER(fd);
-	UNREFERENCED_PARAMETER(cmd);
-	return 0;
+	//UNREFERENCED_PARAMETER(fd);
+	//UNREFERENCED_PARAMETER(cmd);
+	int arg;
+	struct flock* argfl;
+	va_list va;
+	va_start(va, cmd);
+	switch(cmd) {
+	case F_DUPFD:
+		arg = va_arg(va, int);
+		return ParseResponse(
+						MakeLindSysCall(LIND_safe_fs_fcntl, "[iii]", fd, cmd, arg), 0);
+	case F_SETLK:
+		argfl = va_arg(va, struct flock*);
+		return ParseResponse(
+						MakeLindSysCall(LIND_safe_fs_fcntl, "[iis#]", fd, cmd, argfl, sizeof(struct flock)), 0);
+	default:
+		break;
+	}
+
+	return ParseResponse(
+				MakeLindSysCall(LIND_safe_fs_fcntl, "[ii]", fd, cmd), 0);
+	//return 0;
 }
 
 

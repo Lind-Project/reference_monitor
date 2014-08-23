@@ -501,6 +501,25 @@ void monitor_flock()
 	}
 }
 
+void monitor_epoll_create1()
+{
+	if (entering) {
+		entering = 0;
+	} else {
+		int lind_fd = lind_epoll_create1(regs.arg1);
+		if (lind_fd >= 0) {
+			add_mapping(regs.retval, lind_fd);
+			regs.retval = lind_fd;
+		} else {
+			regs.retval = -1;
+		}
+		set_args(&regs);
+		fprintf(stdout, "[monitor] epoll_create1(%d) = %d\n", (int) regs.arg1,
+				(int) regs.retval);
+		entering = 1;
+	}
+}
+
 void monitor_epoll_create()
 {
 	if (entering) {
@@ -776,6 +795,7 @@ void monitor_sendmsg()
 	}
 }
 
+lind_socklen_t* addrlen;
 void monitor_getsockname()
 {
 	if (entering) {
@@ -783,8 +803,10 @@ void monitor_getsockname()
 	} else {
 
 		struct lind_sockaddr *buff = malloc(sizeof (struct lind_sockaddr));
+		regs.arg3 = (long)get_mem(regs.arg3, sizeof(lind_socklen_t));
 		regs.retval = lind_getsockname(regs.arg1, buff,
 					(lind_socklen_t*) regs.arg3);
+
 		set_mem(regs.arg2, buff, sizeof(struct lind_sockaddr));
 		set_args(&regs);
 		fprintf(stdout, "[monitor] getsockname(%d, %d) = %d\n", (int) regs.arg1,
@@ -984,11 +1006,11 @@ void monitor_mmap()
 
 	} else {
 		if (!regs.arg1) {
-				fprintf(stdout, "[monitor] mmap(NULL, %lu, %d, %d, %d, %#llx) = 0x%lx \n",
+				fprintf(stdout, "[monitor] mmap(NULL, %lu, %d, %d, %d, %#llx) = 0x%lx , dec =%ld\n",
 					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
 					   (long unsigned int) regs.retval);
 			} else {
-				fprintf(stdout, "[monitor] mmap(0x%lx, %lu, %d, %d, %d, %#llx) = 0x%lx \n", (long) regs.arg1,
+				fprintf(stdout, "[monitor] mmap(0x%lx, %lu, %d, %d, %d, %#llx) = 0x%lx \n  , dec =%ld\n", (long) regs.arg1,
 					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
 					   (long unsigned int) regs.retval);
 		}
@@ -1393,6 +1415,10 @@ void intercept_calls()
 
 				case __NR_epoll_create:
 					monitor_epoll_create();
+					break;
+
+				case __NR_epoll_create1:
+					monitor_epoll_create1();
 					break;
 
 				case __NR_epoll_ctl:

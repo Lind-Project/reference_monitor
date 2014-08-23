@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/poll.h>
+#include <sys/epoll.h>
 #include <unistd.h>
 #include <stdint.h>
 
@@ -70,12 +71,16 @@
 #define LIND_safe_sys_getegid           53
 #define LIND_safe_fs_flock              54
 #define LIND_safe_fs_rename             55
+#define LIND_safe_net_epoll_create      56
+#define LIND_safe_net_epoll_ctl		    57
+#define LIND_safe_net_epoll_wait        58
 #define LIND_safe_net_sendmsg           59
 #define LIND_safe_net_recvmsg           60
 #define LIND_safe_fs_openat             61
 #define LIND_safe_fs_dup3             	62
 #define LIND_safe_fs_readv              63
 #define LIND_safe_fs_wrtiev             64
+#define LIND_safe_net_epoll_create1      65
 
 #define LIND_comp_cia                   105
 #define LIND_comp_call                  106
@@ -146,6 +151,7 @@ ssize_t lind_pwrite(int fd, const void *buf, int count, off_t offset);
 ssize_t lind_readv(int fd, void* buf, int count);
 ssize_t lind_writev(int fd, const void *buf, int count);
 int lind_lstat (const char *path, struct lind_stat *buf);
+int lind_epoll_create1(int flags);
 
 void add_mapping(int src, int dest);
 int get_mapping(int fd);
