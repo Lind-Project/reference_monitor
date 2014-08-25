@@ -132,6 +132,7 @@ void *test_sendmsg();
 void *test_recvmsg();
 void test_openat(char *path);
 void test_mmap(char* path);
+int test_epoll();
 
 
 char *get_testfiles_dir()

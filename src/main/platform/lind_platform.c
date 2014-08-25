@@ -162,8 +162,9 @@ int GetHostFdFromLindFd(int lindFd) {
 
 
 void CopyData(char* dst, char* src, int maxlen, int srclen) {
-	assert(maxlen >= srclen);
-	memcpy(dst, src, srclen);
+    //assert(maxlen >= srclen);
+	int len=(maxlen<srclen)?maxlen:srclen;
+	memcpy(dst, src, len);
 }
 
 void CopyMultiDataVa(char* src, int num, va_list varg) {
@@ -395,7 +396,7 @@ int lind_fstat(int fd, struct lind_stat *buf) {
 
 int lind_fstatfs(int fd, struct lind_statfs *buf) {
 	return ParseResponse(MakeLindSysCall(LIND_safe_fs_fstatfs, "[i]", fd), 1,
-			buf, sizeof(*buf));
+			buf, sizeof(struct lind_statfs));
 }
 
 int lind_statfs(const char *path, struct lind_statfs *buf) {

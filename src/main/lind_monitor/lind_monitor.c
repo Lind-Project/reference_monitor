@@ -1006,13 +1006,12 @@ void monitor_mmap()
 
 	} else {
 		if (!regs.arg1) {
-				fprintf(stdout, "[monitor] mmap(NULL, %lu, %d, %d, %d, %#llx) = 0x%lx , dec =%ld\n",
+				fprintf(stdout, "[monitor] mmap(NULL, %lu, %d, %d, %d, %#llx) = 0x%lx\n",
 					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
-					   (long unsigned int) regs.retval);
+					   (long int) regs.retval);
 			} else {
-				fprintf(stdout, "[monitor] mmap(0x%lx, %lu, %d, %d, %d, %#llx) = 0x%lx \n  , dec =%ld\n", (long) regs.arg1,
-					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6,
-					   (long unsigned int) regs.retval);
+				fprintf(stdout, "[monitor] mmap(0x%lx, %lu, %d, %d, %d, %#llx) = 0x%lx\n", (long) regs.arg1,
+					   (long) regs.arg2, (int) regs.arg3, (int) regs.arg4, (int) regs.arg5, (long long unsigned int) regs.arg6, (long int) regs.retval);
 		}
 		entering = 1;
 	}
