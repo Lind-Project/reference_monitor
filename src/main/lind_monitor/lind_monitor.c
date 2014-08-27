@@ -66,8 +66,12 @@ void monitor_deny()
 		regs.retval = EINVAL;
 		set_args(&regs);
 		entering = 0;
+		fprintf(stdout, "[monitor] BEFORE Deny call by Lind: %s() = %d\n",
+						syscall_names[regs.syscall], (int) regs.retval);
+		fprintf(stdout, "Aborting\n");
+		exit(1);
 	} else {
-		fprintf(stdout, "[monitor] Deny call by Lind: %s() = %d\n",
+		fprintf(stdout, "[monitor] AFTER Deny call by Lind: %s() = %d\n",
 				syscall_names[regs.syscall], (int) regs.retval);
 		entering = 1;
 	}
@@ -1251,10 +1255,6 @@ void intercept_calls()
 				case __NR_stat:
 					monitor_stat();
 					break;
-
-				//case __NR_lstat:
-				//	monitor_lstat();
-				//	break;
 
 				case __NR_statfs:
 					monitor_statfs();
