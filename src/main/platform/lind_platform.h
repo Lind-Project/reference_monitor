@@ -150,7 +150,6 @@ ssize_t lind_pread(int fd, void* buf, int count, off_t offset);
 ssize_t lind_pwrite(int fd, const void *buf, int count, off_t offset);
 ssize_t lind_readv(int fd, void* buf, int count);
 ssize_t lind_writev(int fd, const void *buf, int count);
-int lind_lstat (const char *path, struct lind_stat *buf);
 int lind_epoll_create1(int flags);
 
 void add_mapping(int src, int dest);

@@ -1513,9 +1513,11 @@ int get_syscall_num(char *name)
 {
 	int i;
 
-	for (i = 0; i < TOTAL_SYSCALLS; i++)
+	for (i = 0; i < TOTAL_SYSCALLS; i++){
 		if (syscall_names[i] && !strcmp(syscall_names[i], name))
 			return i;
+	}
+	fprintf(stderr, "Syscall %s not found.\n", name);
 	return -1;
 }
 
@@ -1571,6 +1573,11 @@ int load_config()
 		exit(-1);
 	}
 
+	int var;
+	for (var = 0; var < TOTAL_SYSCALLS; var++) {
+		monitor_actions[var] = NO_VAL;
+	}
+
 	while ((str = fgets(buff, sizeof buff, fp)) != NULL) {
 
 		if (buff[0] == '\n' || buff[0] == '#')
@@ -1582,7 +1589,7 @@ int load_config()
 			key = strdup(str);
 			value = strdup(sep);
 
-			if (strcmp(value, "ALLOW_LIND\n") == 0) {
+			if(strcmp(value, "ALLOW_LIND\n") == 0) {
 				mact = ALLOW_LIND;
 			} else if (strcmp(value, "DENY_LIND\n") == 0) {
 				mact = DENY_LIND;
@@ -1590,9 +1597,16 @@ int load_config()
 				mact = ALLOW_OS;
 			}
 
-			int sys = get_syscall_num(key);
+		int sys = get_syscall_num(key);
+
+		// to detect duplicated syscalls
+		if (monitor_actions[sys] == NO_VAL){
 			monitor_actions[sys] = mact;
+		} else {
+			fprintf(stderr, "Duplicated call definitions %s %d \n", syscall_names[sys], sys);
+			exit(-1);
 		}
+	  }
 	}
 
 	fflush(fp);

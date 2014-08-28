@@ -60,7 +60,8 @@ int load_config();
 enum monitor_action {
 	ALLOW_LIND,
 	DENY_LIND,
-	ALLOW_OS
+	ALLOW_OS,
+	NO_VAL
 };
 
 /* the tracee pid that should be monitored */
