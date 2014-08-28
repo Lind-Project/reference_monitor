@@ -1,0 +1,17 @@
+Reference Monitor provides call interception for a set of syscalls that are supported by Lind.
+
+To install:
+
+1. setup environment variables:
+
+   $export REPY_PATH= <path to the repy file system>
+   $export LIND_SRC= <path to lind src>
+   $export LIND_MONITOR = <path to reference monitor>
+
+
+2. Get the software:
+   $git clone https://github.com/Lind-Project/reference_monitor.git
+
+3. cd $LIND_MONITOR
+   $./build
+
