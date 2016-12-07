@@ -25,7 +25,7 @@ void test_exit()
 	}
 
 	if (pid == 0 )  {
-		fprintf(stdout, "parent exit statu s= %d \n", status);
+		fprintf(stdout, "parent exit status = %d \n", status);
 		exit (status);
 	} else  {
 		wait(&status);
